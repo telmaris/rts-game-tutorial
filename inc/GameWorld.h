@@ -4,6 +4,12 @@
 #include "Utils.h"
 #include "Player.h"
 
+class Tile
+{
+    public:
+        Tile() = default;
+};
+
 class TileMap
 {
     public:
