@@ -3,6 +3,7 @@
 
 #include "Utils.h"
 #include "InputHandler.h"
+#include "Building.h"
 
 class TileMap;
 
