@@ -3,6 +3,7 @@
 
 #include "Utils.h"
 #include "Window.h"
+#include "GameWorld.h"
 
 // fasada gry
 class Game
@@ -16,8 +17,9 @@ public:
     void Cleanup();
 
 private:
+    bool gameRunning = true;
     std::unique_ptr<Window> window;
-    
+    std::unique_ptr<GameWorld> gameWorld;
 };
 
 

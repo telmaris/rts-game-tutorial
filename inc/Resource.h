@@ -13,6 +13,8 @@ enum class ResourceType
 
 struct Resource
 {
+    Resource(ResourceType rtype) : type(rtype) {}
+
     ResourceType type;
     double transportTime = 0.0, elapsedTime = 0.0;
     
@@ -22,14 +24,15 @@ struct Resource
 class ResourceBuffer
 {
     public:
-
+        ResourceBuffer(ResourceType t, int size) : type(t), bufferSize(size) {}
+        ResourceBuffer() = default;
+        
         int bufferSize;
         ResourceType type;  // buffer can allocate 1 type of resources
 
         void AddResource(Resource& res);
         Resource GetResource();
 
-    private:
         std::vector<Resource> buffer;
 };
 
