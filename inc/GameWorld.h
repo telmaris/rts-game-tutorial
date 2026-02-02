@@ -16,7 +16,6 @@ class Tile
         void CreateBuilding(std::unique_ptr<Building>&& building);
         void DestroyBuilding();
         void SetOwner(Player* player);
-        //bool fajnazgrabnanazwaczymoznazbudowac
         bool CanBuild(Player* player);
 };
 
@@ -25,9 +24,10 @@ class TileMap
     public:
         TileMap() = default;
         std::vector<Tile> tilemap;
-        Tile& GetTile(int id);//Tile pointer bo std::unique_ptr
+        Tile& GetTile(int id);              //Tile pointer bo std::unique_ptr
         void SetTile(int id, Tile&& tile);
         void BuildOnTile(int id, Player* player, std::unique_ptr<Building>&& building);
+        void UpdateBuildings(double dt);
 
 };
 
@@ -54,7 +54,7 @@ class GameWorld
         GameWorld() = default;
 
         void InitWorld();
-        void Update();
+        void Update(double);
 
     private:
         std::unique_ptr<TileMap> tilemap;

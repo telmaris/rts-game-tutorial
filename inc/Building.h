@@ -11,6 +11,9 @@ class Building
 {
     public:
         Building() = default;
+        virtual ~Building() = default;
+
+        virtual void Update(double) = 0;
 
     Player* owner;
     Tile* placement;
@@ -18,18 +21,28 @@ class Building
     std::string name;
 };
 
+// todo: jak zaplanować rozkaz wydawania surowców: priorytet ma producent czy odbiorca?
+
 class ProductionBuilding : public Building
 {
     public:
         ProductionBuilding() = default;
+        virtual ~ProductionBuilding() = default;
 
+        void Update(double) override;
+        
+        //protected:
         virtual void Produce(double);
 
-    protected:
+        ResourceType type;
+        std::map<ResourceType, int> ingredients;
+        std::map<ResourceType, int> products;
 
         double productionTime = 0.0, elapsedTime = 0.0;
-        std::vector<ResourceBuffer> inputBuffers;
-        std::vector<ResourceBuffer> outputBuffers;
+        bool productionStarted = false;
+
+        std::map<ResourceType, ResourceBuffer> inputBuffers;   // 1 resource buffer per 1 resource type
+        std::map<ResourceType, ResourceBuffer> outputBuffers;
 };
 
 class LumberMill : public ProductionBuilding
