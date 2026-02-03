@@ -73,3 +73,18 @@ void ProductionBuilding::Produce(double dt)
         }
     }
 }
+
+
+// ===== BUILDINGS =====
+
+LumberMill::LumberMill()
+{
+    type = ResourceType::WOOD;
+    products.insert({ResourceType::WOOD, 1});
+    productionTime = 5;
+    ResourceBuffer output{ResourceType::WOOD, 3};
+    outputBuffers.insert({ResourceType::WOOD, output});     // to jest stworzenie pojedynczego outputu
+}
+
+
+
