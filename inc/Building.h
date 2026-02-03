@@ -35,13 +35,14 @@ class ProductionBuilding : public Building
         virtual void Produce(double);
 
         ResourceType type;
-        std::map<ResourceType, int> ingredients;
-        std::map<ResourceType, int> products;
+        std::map<ResourceType, int> ingredients;    // to budynek pochłania do produkcji (1 para <resourcetype, int> per składnik)
+        std::map<ResourceType, int> products;       // to budynek produkuje (analogicznie do ingredients - 1 para per surowiec)
 
         double productionTime = 0.0, elapsedTime = 0.0;
         bool productionStarted = false;
-
-        std::map<ResourceType, ResourceBuffer> inputBuffers;   // 1 resource buffer per 1 resource type
+        
+        // 1 resource buffer per 1 resource type
+        std::map<ResourceType, ResourceBuffer> inputBuffers;   // analogicznie do ingredients, para <resourcetype, resourcebuffer> per składnik
         std::map<ResourceType, ResourceBuffer> outputBuffers;
 };
 
@@ -49,8 +50,6 @@ class LumberMill : public ProductionBuilding
 {
     public:
         LumberMill();
-
-
 };
 
 #endif
