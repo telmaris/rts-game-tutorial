@@ -5,10 +5,12 @@
 
 enum class ResourceType
 {
+    Null = 0,
     WOOD = 1,
     IRON_ORE = 2,
-    COAL = 3,
-    IRON = 4
+    COAL_ORE = 3,
+    IRON = 4,
+    PLANKS = 5
 };
 
 struct Resource
