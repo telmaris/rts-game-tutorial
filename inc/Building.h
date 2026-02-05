@@ -46,10 +46,29 @@ class ProductionBuilding : public Building
         std::map<ResourceType, ResourceBuffer> outputBuffers;
 };
 
+class Woodcutter : public ProductionBuilding
+{
+    public:
+        Woodcutter();
+};
 class LumberMill : public ProductionBuilding
 {
     public:
         LumberMill();
+};
+class Mine : public ProductionBuilding
+{
+    public:
+        Mine();
+};
+class Foundry : public ProductionBuilding
+{
+    public:
+        Foundry();
+        void FoundryTest()
+        {
+            
+        }
 };
 
 #endif
