@@ -15,10 +15,10 @@ void ProductionBuilding::Produce(double dt)
             // handle finished production
             for (auto &[resource, amount] : products)
             {
-                for(int i = 0; i < amount; i++)
+                for (int i = 0; i < amount; i++)
                 {
                     outputBuffers[resource].buffer.emplace_back(Resource{resource});
-                    Log::Msg("[production building]", "Created a resource: ");
+                    Log::Msg(tag, "Created a resource: ", static_cast<int>(type));
                 }
             }
 
@@ -39,7 +39,7 @@ void ProductionBuilding::Produce(double dt)
         // first, check if output buffers have space
         for (auto &[resource, buffer] : outputBuffers)
         {
-            if(buffer.buffer.size() >= buffer.bufferSize) 
+            if (buffer.buffer.size() >= buffer.bufferSize)
             {
                 // Log::Msg("[production building]", "Cannot start due to the full output buffer!");
                 return;
@@ -63,12 +63,12 @@ void ProductionBuilding::Produce(double dt)
         {
             for (auto &[resource, amount] : ingredients)
             {
-                for(int i = 0; i < amount; i++)
+                for (int i = 0; i < amount; i++)
                 {
                     inputBuffers[resource].buffer.pop_back();
                 }
             }
-
+            Log::Msg(tag, "Production of", static_cast<int>(type), "started");
             productionStarted = true;
         }
     }
@@ -78,20 +78,21 @@ ResourceType insertType(ResourceType type)
     return type;
 }
 
-
 // ===== BUILDINGS =====
 
-Woodcutter::Woodcutter()
+Woodcutter::Woodcutter(int i)
 {
+    id = i;
+    name = "Woodcutter";
+    tag = "[Woodcutter]";
     type = ResourceType::WOOD;
     products.insert({ResourceType::WOOD, 1});
     productionTime = 5;
     ResourceBuffer output{ResourceType::WOOD, 3};
-    outputBuffers.insert({ResourceType::WOOD, output});     // to jest stworzenie pojedynczego outputu
+    outputBuffers.insert({ResourceType::WOOD, output}); // to jest stworzenie pojedynczego outputu
 }
 LumberMill::LumberMill()
 {
-
     type = ResourceType::PLANKS;
     products.insert({ResourceType::PLANKS, 2});
     productionTime = 10;
@@ -99,24 +100,30 @@ LumberMill::LumberMill()
     ResourceBuffer input{ResourceType::WOOD, 8};
     inputBuffers.insert({ResourceType::WOOD, input});
     outputBuffers.insert({ResourceType::WOOD, output});
-    
 }
+
 Mine::Mine()
 {
     type = ResourceType::Null;
-    if(type == ResourceType::IRON_ORE)
+}
+
+void Mine::InitBuilding(ResourceType tile)
+{
+    type = tile;
+    if (type == ResourceType::IRON_ORE)
     {
         products.insert({ResourceType::IRON_ORE, 2});
         productionTime = 1;
-        outputBuffers.insert({ResourceType::IRON_ORE, ResourceBuffer{ResourceType::IRON_ORE, 2}});
+        outputBuffers.insert({ResourceType::IRON_ORE, ResourceBuffer{ResourceType::IRON_ORE, 10}});
     }
-    if(type == ResourceType::COAL_ORE)
+    if (type == ResourceType::COAL)
     {
-        products.insert({ResourceType::COAL_ORE, 6});
-        productionTime = 40;
-        outputBuffers.insert({ResourceType::COAL_ORE, ResourceBuffer{ResourceType::COAL_ORE, 6}});
+        products.insert({ResourceType::COAL, 6});
+        productionTime = 4;
+        outputBuffers.insert({ResourceType::COAL, ResourceBuffer{ResourceType::COAL, 12}});
     }
 }
+
 Foundry::Foundry()
 {
     type = ResourceType::Null;
@@ -131,10 +138,10 @@ Foundry::Foundry()
         productionTime = 30;
         inputBuffers.insert({ResourceType::WOOD, ResourceBuffer{ResourceType::WOOD, 2}});
         break;
-    case ResourceType::COAL_ORE:
+    case ResourceType::COAL:
         allow = true;
         productionTime = 20;
-        inputBuffers.insert({ResourceType::COAL_ORE, ResourceBuffer{ResourceType::COAL_ORE, 2}});
+        inputBuffers.insert({ResourceType::COAL, ResourceBuffer{ResourceType::COAL, 2}});
         break;
     default:
         break;
@@ -152,6 +159,3 @@ Foundry::Foundry()
         break;
     }
 }
-
-
-

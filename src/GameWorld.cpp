@@ -3,6 +3,7 @@
 void Tile::CreateBuilding(std::unique_ptr<Building> &&bld)
 {
     building = std::move(bld);
+    building->InitBuilding(tileType);
 }
 
 void Tile::DestroyBuilding()
@@ -44,6 +45,7 @@ void TileMap::BuildOnTile(int id, Player *player, std::unique_ptr<Building> &&bu
     Tile &tile = tilemap[id];
     if (tile.CanBuild(player))
     {
+        Log::Msg(building->tag, building->id, "Created");
         tile.CreateBuilding(std::move(building));
     }
 }
@@ -61,18 +63,10 @@ void GameWorld::InitWorld()
     // initialite the tile     
     tilemap = std::make_unique<TileMap>();
     tilemap->tilemap.emplace_back(0);
-    Player p;
+    Player p{0x1000, tilemap.get()};
     tilemap->tilemap[0].SetOwner(&p);
-    //auto bld = std::make_unique<ProductionBuilding>();
-    auto mineTest = std::make_unique<Mine>();
-    //mineTest->type = ResourceType::IRON_ORE;
-    tilemap->BuildOnTile(0, &p, std::move(mineTest));
-    //bld->productionTime = 3;
-    //bld->products.insert({ResourceType::WOOD, 1});
-    //bld->outputBuffers.insert({ResourceType::WOOD, ResourceBuffer{ResourceType::WOOD, 3}});
-
-    //tilemap->BuildOnTile(0, &p, std::move(bld));
     
+    p.Build<Woodcutter>(0);
 }
 
 void GameWorld::Update(double dt)

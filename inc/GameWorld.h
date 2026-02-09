@@ -10,13 +10,16 @@ class Tile
     public:
         Tile() = default;
         Tile(int i) : id(i){}
-        int id;
-        Player* owner = nullptr;  //ten tam ten pointer oznacza wlasciciela tego terytorium
-        std::unique_ptr<Building> building;
+
         void CreateBuilding(std::unique_ptr<Building>&& building);
         void DestroyBuilding();
         void SetOwner(Player* player);
         bool CanBuild(Player* player);
+
+        int id;
+        Player* owner = nullptr;  //ten tam ten pointer oznacza wlasciciela tego terytorium
+        std::unique_ptr<Building> building;
+        ResourceType tileType{static_cast<ResourceType>(0)};
 };
 
 class TileMap
