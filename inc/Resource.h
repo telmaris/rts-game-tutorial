@@ -3,12 +3,12 @@
 
 #include "Utils.h"
 
-enum class ResourceType
+enum class ResourceType : int
 {
     Null = 0,
     WOOD = 1,
     IRON_ORE = 2,
-    COAL_ORE = 3,
+    COAL = 3,
     IRON = 4,
     PLANKS = 5
 };

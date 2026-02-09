@@ -11,14 +11,17 @@ class Building
 {
     public:
         Building() = default;
+        Building(int i ) : id(i) {}
         virtual ~Building() = default;
 
         virtual void Update(double) = 0;
+        virtual void InitBuilding(ResourceType) = 0;
 
     Player* owner;
     Tile* placement;
     int id;
-    std::string name;
+    std::string name{"Building - Generic"};
+    std::string tag;
 };
 
 // todo: jak zaplanować rozkaz wydawania surowców: priorytet ma producent czy odbiorca?
@@ -27,9 +30,11 @@ class ProductionBuilding : public Building
 {
     public:
         ProductionBuilding() = default;
+        
         virtual ~ProductionBuilding() = default;
 
         void Update(double) override;
+        virtual void InitBuilding(ResourceType t) override { type = t;}
         
         //protected:
         virtual void Produce(double);
@@ -49,7 +54,7 @@ class ProductionBuilding : public Building
 class Woodcutter : public ProductionBuilding
 {
     public:
-        Woodcutter();
+        Woodcutter(int);
 };
 class LumberMill : public ProductionBuilding
 {
@@ -60,15 +65,12 @@ class Mine : public ProductionBuilding
 {
     public:
         Mine();
+        void InitBuilding(ResourceType) override;
 };
 class Foundry : public ProductionBuilding
 {
     public:
         Foundry();
-        void FoundryTest()
-        {
-            
-        }
 };
 
 #endif
