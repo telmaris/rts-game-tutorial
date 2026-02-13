@@ -11,17 +11,34 @@ class Building
 {
     public:
         Building() = default;
-        Building(int i ) : id(i) {}
+        Building(int i) : id(i) {}
         virtual ~Building() = default;
 
         virtual void Update(double) = 0;
         virtual void InitBuilding(ResourceType) = 0;
+
+        virtual void AddResource(Resource) = 0;
+        virtual Resource GetResource(ResourceType) = 0;
 
     Player* owner;
     Tile* placement;
     int id;
     std::string name{"Building - Generic"};
     std::string tag;
+};
+
+class Road : public Building
+{
+    public:
+        Road() = default;
+
+        void Update(double);
+
+        std::string tag{"[Road]"};
+        int upgradeLevel;
+        int maxCapacity = 5;
+        double speedModifier = 1.0;
+        std::vector<Resource> resources;
 };
 
 // todo: jak zaplanować rozkaz wydawania surowców: priorytet ma producent czy odbiorca?
@@ -35,9 +52,13 @@ class ProductionBuilding : public Building
 
         void Update(double) override;
         virtual void InitBuilding(ResourceType t) override { type = t;}
+
+        void AddResource(Resource) override;
+        Resource GetResource(ResourceType) override;
         
         //protected:
         virtual void Produce(double);
+        void HandleTransport();
 
         ResourceType type;
         std::map<ResourceType, int> ingredients;    // to budynek pochłania do produkcji (1 para <resourcetype, int> per składnik)
@@ -49,28 +70,11 @@ class ProductionBuilding : public Building
         // 1 resource buffer per 1 resource type
         std::map<ResourceType, ResourceBuffer> inputBuffers;   // analogicznie do ingredients, para <resourcetype, resourcebuffer> per składnik
         std::map<ResourceType, ResourceBuffer> outputBuffers;
+
+        std::map<ResourceType, Building*> suppliersMap;
+        std::map<ResourceType, Building*> receiversMap;
 };
 
-class Woodcutter : public ProductionBuilding
-{
-    public:
-        Woodcutter(int);
-};
-class LumberMill : public ProductionBuilding
-{
-    public:
-        LumberMill();
-};
-class Mine : public ProductionBuilding
-{
-    public:
-        Mine();
-        void InitBuilding(ResourceType) override;
-};
-class Foundry : public ProductionBuilding
-{
-    public:
-        Foundry();
-};
+
 
 #endif

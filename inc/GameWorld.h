@@ -47,7 +47,6 @@ class PlayerHandler
     public:
         PlayerHandler() = default;
 
-    private:
         std::map<int, std::unique_ptr<Player>> players;
 };
 
