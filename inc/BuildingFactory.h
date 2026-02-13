@@ -2,6 +2,7 @@
 #define BUILDING_FACTORY_H
 
 #include "Building.h"
+#include "ProductionBuildings.h"
 
 class TileMap;
 

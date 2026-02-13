@@ -1,8 +1,11 @@
 #include "../inc/Building.h"
+#include "../inc/ProductionBuildings.h"
+#include "../inc/Player.h"
 
 void ProductionBuilding::Update(double dt)
 {
     Produce(dt);
+    HandleTransport();
 }
 
 void ProductionBuilding::Produce(double dt)
@@ -18,7 +21,7 @@ void ProductionBuilding::Produce(double dt)
                 for (int i = 0; i < amount; i++)
                 {
                     outputBuffers[resource].buffer.emplace_back(Resource{resource});
-                    Log::Msg(tag, "Created a resource: ", static_cast<int>(type));
+                    Log::Msg(tag, "Created a resource: ", rt2s(resource));
                 }
             }
 
@@ -68,14 +71,39 @@ void ProductionBuilding::Produce(double dt)
                     inputBuffers[resource].buffer.pop_back();
                 }
             }
-            Log::Msg(tag, "Production of", static_cast<int>(type), "started");
+            for (auto &[resource, amount] : products)
+            {
+                Log::Msg(tag, "Production of ", rt2s(resource), " started");
+            }
+            
             productionStarted = true;
         }
     }
 }
-ResourceType insertType(ResourceType type)
+
+void ProductionBuilding::HandleTransport()
 {
-    return type;
+    for(auto& [resource, receiver] : receiversMap)
+    {
+        // check if given resource has been storaged in output buffer
+        auto [isAvailable, res] = outputBuffers[resource].GetResource();
+        if(isAvailable)
+        {
+            owner->BeginTransport(this, receiver, res);
+            Log::Msg(tag, "resource transport started!");
+        }
+    }
+}
+
+void ProductionBuilding::AddResource(Resource res)
+{
+    Log::Msg(tag, "resource added!");
+    inputBuffers[res.type].AddResource(res);
+}
+
+Resource ProductionBuilding::GetResource(ResourceType type)
+{
+    inputBuffers[type].GetResource();
 }
 
 // ===== BUILDINGS =====
@@ -91,15 +119,23 @@ Woodcutter::Woodcutter(int i)
     ResourceBuffer output{ResourceType::WOOD, 3};
     outputBuffers.insert({ResourceType::WOOD, output}); // to jest stworzenie pojedynczego outputu
 }
-LumberMill::LumberMill()
+LumberMill::LumberMill(int i)
 {
+    id = i;
+    name = "Lumber Mill";
+    tag = "[Lumber Mill]";
+
     type = ResourceType::PLANKS;
     products.insert({ResourceType::PLANKS, 2});
     productionTime = 10;
+
+    ingredients.insert({ResourceType::WOOD, 1});
+
     ResourceBuffer output{ResourceType::PLANKS, 16};
     ResourceBuffer input{ResourceType::WOOD, 8};
+
     inputBuffers.insert({ResourceType::WOOD, input});
-    outputBuffers.insert({ResourceType::WOOD, output});
+    outputBuffers.insert({ResourceType::PLANKS, output});
 }
 
 Mine::Mine()

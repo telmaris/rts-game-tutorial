@@ -3,8 +3,8 @@
 
 #include "Utils.h"
 #include "InputHandler.h"
-#include "Building.h"
 #include "BuildingFactory.h"
+#include "RoadNetwork.h"
 
 class TileMap;
 
@@ -12,7 +12,7 @@ class Player
 {
 public:
     Player() = default;
-    Player(int i, TileMap *tmap) : tilemap(tmap), id(i), build(this, tilemap){}
+    Player(int i, TileMap *tmap) : tilemap(tmap), id(i), build(this, tilemap){ roadNetwork = std::make_unique<RoadNetwork>();}
 
     template <typename T>
     void Build(int tilePos)
@@ -21,10 +21,16 @@ public:
         build.Build<T>(tilePos);
     }
 
+    inline void BeginTransport(Building* src, Building* dest, Resource res)
+    {
+        roadNetwork->BeginTransport(src, dest, res);
+    }
+
     int id;
 
-private:
+// private:
     std::unique_ptr<InputHandler> input;
+    std::unique_ptr<RoadNetwork> roadNetwork;
     TileMap *tilemap;
     BFactory build; // initialize BuildingFactory with current player
 };

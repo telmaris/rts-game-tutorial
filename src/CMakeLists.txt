@@ -5,4 +5,6 @@ include_directories(../inc)
                        PRIVATE
                        GameWorld.cpp
                        Building.cpp
-                       Game.cpp)
+                       Game.cpp
+                       Resource.cpp
+                       RoadNetwork.cpp)

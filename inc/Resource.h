@@ -3,6 +3,8 @@
 
 #include "Utils.h"
 
+class Building;
+
 enum class ResourceType : int
 {
     Null = 0,
@@ -13,14 +15,34 @@ enum class ResourceType : int
     PLANKS = 5
 };
 
+inline std::string rt2s(ResourceType s)
+{
+    switch (s)
+    {
+        case ResourceType::Null: return "NULL";
+        case ResourceType::WOOD:  return "WOOD";
+        case ResourceType::IRON_ORE: return "IRON_ORE";
+        case ResourceType::COAL: return "COAL";
+        case ResourceType::IRON: return "IRON";
+        case ResourceType::PLANKS: return "PLANKS";
+
+        default: return "Unknown";
+    }
+}
+
 struct Resource
 {
+    Resource() = default;
     Resource(ResourceType rtype) : type(rtype) {}
 
-    ResourceType type;
+    std::string tag{"[Resource]"};
+    ResourceType type{ResourceType::Null};
     double transportTime = 0.0, elapsedTime = 0.0;
+
+    Building* targetBuilding = nullptr;
     
-    void BeginTransport();
+    bool Update(double);
+    void BeginTransport(Building*, double);
 };
 
 class ResourceBuffer
@@ -33,7 +55,7 @@ class ResourceBuffer
         ResourceType type;  // buffer can allocate 1 type of resources
 
         void AddResource(Resource& res);
-        Resource GetResource();
+        std::pair<bool, Resource> GetResource();    // returns bool - is resource available, Resource - obtained resource
 
         std::vector<Resource> buffer;
 };

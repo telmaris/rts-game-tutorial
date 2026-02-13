@@ -46,6 +46,7 @@ void TileMap::BuildOnTile(int id, Player *player, std::unique_ptr<Building> &&bu
     if (tile.CanBuild(player))
     {
         Log::Msg(building->tag, building->id, "Created");
+        building->owner = player;
         tile.CreateBuilding(std::move(building));
     }
 }
@@ -63,10 +64,21 @@ void GameWorld::InitWorld()
     // initialite the tile     
     tilemap = std::make_unique<TileMap>();
     tilemap->tilemap.emplace_back(0);
-    Player p{0x1000, tilemap.get()};
-    tilemap->tilemap[0].SetOwner(&p);
+    tilemap->tilemap.emplace_back(1);
+
+    playerHandler.players.insert({0, std::make_unique<Player>(0, tilemap.get())});
+    auto p = playerHandler.players[0].get();
+    // Player p{0x1000, tilemap.get()};
+    tilemap->tilemap[0].SetOwner(p);
+    tilemap->tilemap[1].SetOwner(p);
     
-    p.Build<Woodcutter>(0);
+    p->Build<Woodcutter>(0);
+    p->Build<LumberMill>(1);
+
+    auto wc = tilemap->tilemap[0].building.get();
+    auto lm = tilemap->tilemap[1].building.get();
+    dynamic_cast<ProductionBuilding*>(wc)->receiversMap.insert({ResourceType::WOOD, lm});
+    dynamic_cast<ProductionBuilding*>(lm)->suppliersMap.insert({ResourceType::WOOD, wc});
 }
 
 void GameWorld::Update(double dt)
@@ -75,5 +87,5 @@ void GameWorld::Update(double dt)
 
     // update tilemap with buildings
     tilemap->UpdateBuildings(dt);
-
+    playerHandler.players[0]->roadNetwork->Update(dt);
 }
