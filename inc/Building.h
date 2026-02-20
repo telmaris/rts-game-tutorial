@@ -20,6 +20,9 @@ class Building
         virtual void AddResource(Resource) = 0;
         virtual Resource GetResource(ResourceType) = 0;
 
+        virtual void SetSupplier(ResourceType, Building*) = 0;
+        virtual void SetReceiver(ResourceType, Building*) = 0;
+
     Player* owner;
     Tile* placement;
     int id;
