@@ -31,7 +31,6 @@ class TileMap
         void SetTile(int id, Tile&& tile);
         void BuildOnTile(int id, Player* player, std::unique_ptr<Building>&& building);
         void UpdateBuildings(double dt);
-
 };
 
 class MapGenerator
