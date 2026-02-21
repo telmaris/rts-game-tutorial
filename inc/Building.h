@@ -37,6 +37,9 @@ class Road : public Building
 
         void Update(double);
 
+        void SetSupplier(ResourceType, Building*) {}
+        void SetReceiver(ResourceType, Building*) {}
+
         std::string tag{"[Road]"};
         int upgradeLevel;
         int maxCapacity = 5;
@@ -58,6 +61,9 @@ class ProductionBuilding : public Building
 
         void AddResource(Resource) override;
         Resource GetResource(ResourceType) override;
+
+        void SetSupplier(ResourceType, Building*);
+        void SetReceiver(ResourceType, Building*);
         
         //protected:
         virtual void Produce(double);

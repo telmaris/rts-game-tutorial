@@ -61,24 +61,23 @@ void TileMap::UpdateBuildings(double dt)
 
 void GameWorld::InitWorld()
 {
-    // initialite the tile     
-    tilemap = std::make_unique<TileMap>();
-    tilemap->tilemap.emplace_back(0);
-    tilemap->tilemap.emplace_back(1);
+    // initialite the tile
+    tilemap.tilemap.emplace_back(0);
+    tilemap.tilemap.emplace_back(1);
 
-    playerHandler.players.insert({0, std::make_unique<Player>(0, tilemap.get())});
+    playerHandler.players.insert({0, std::make_unique<Player>(0, tilemap)});
     auto p = playerHandler.players[0].get();
     // Player p{0x1000, tilemap.get()};
-    tilemap->tilemap[0].SetOwner(p);
-    tilemap->tilemap[1].SetOwner(p);
+    tilemap[0].SetOwner(p);
+    tilemap[1].SetOwner(p);
     
     p->Build<Woodcutter>(0);
     p->Build<LumberMill>(1);
 
-    auto wc = tilemap->tilemap[0].building.get();
-    auto lm = tilemap->tilemap[1].building.get();
-    dynamic_cast<ProductionBuilding*>(wc)->receiversMap.insert({ResourceType::WOOD, lm});
-    dynamic_cast<ProductionBuilding*>(lm)->suppliersMap.insert({ResourceType::WOOD, wc});
+    auto wc = tilemap[0].building.get();
+    auto lm = tilemap[1].building.get();
+
+    wc->SetReceiver(ResourceType::WOOD, lm);
 }
 
 void GameWorld::Update(double dt)
@@ -86,6 +85,6 @@ void GameWorld::Update(double dt)
     // update everything like prodution timers, transport, combat, research etc.
 
     // update tilemap with buildings
-    tilemap->UpdateBuildings(dt);
+    tilemap.UpdateBuildings(dt);
     playerHandler.players[0]->roadNetwork->Update(dt);
 }
