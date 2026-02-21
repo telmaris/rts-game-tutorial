@@ -106,6 +106,27 @@ Resource ProductionBuilding::GetResource(ResourceType type)
     inputBuffers[type].GetResource();
 }
 
+void ProductionBuilding::SetSupplier(ResourceType type, Building* supplier)
+{
+    auto [it, ok] = suppliersMap.insert({type, supplier});
+    if(!ok)
+    {
+        suppliersMap[type] = supplier;
+    }
+}
+
+void ProductionBuilding::SetReceiver(ResourceType type, Building* receiver)
+{
+    auto [it, ok] = receiversMap.insert({type, receiver});
+    if(!ok)
+    {
+        receiversMap[type] = receiver;
+    }
+    receiver->SetSupplier(type, this);
+}
+
+
+
 // ===== BUILDINGS =====
 
 Woodcutter::Woodcutter(int i)

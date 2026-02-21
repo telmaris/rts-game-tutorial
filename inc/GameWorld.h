@@ -31,6 +31,8 @@ class TileMap
         void SetTile(int id, Tile&& tile);
         void BuildOnTile(int id, Player* player, std::unique_ptr<Building>&& building);
         void UpdateBuildings(double dt);
+
+        Tile& operator [] (size_t idx) { return tilemap[idx];}
 };
 
 class MapGenerator
@@ -58,7 +60,7 @@ class GameWorld
         void Update(double);
 
     private:
-        std::unique_ptr<TileMap> tilemap;
+        TileMap tilemap;
         MapGenerator generator;
         PlayerHandler playerHandler;
 };
