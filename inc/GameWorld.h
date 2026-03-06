@@ -59,7 +59,7 @@ class GameWorld
         void InitWorld();
         void Update(double);
 
-    private:
+    
         TileMap tilemap;
         MapGenerator generator;
         PlayerHandler playerHandler;

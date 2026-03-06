@@ -58,26 +58,31 @@ void TileMap::UpdateBuildings(double dt)
         if(tile.building != nullptr) tile.building->Update(dt);
     }
 }
-
 void GameWorld::InitWorld()
 {
     // initialite the tile
     tilemap.tilemap.emplace_back(0);
     tilemap.tilemap.emplace_back(1);
+    tilemap.tilemap.emplace_back(2);
 
     playerHandler.players.insert({0, std::make_unique<Player>(0, tilemap)});
     auto p = playerHandler.players[0].get();
     // Player p{0x1000, tilemap.get()};
     tilemap[0].SetOwner(p);
     tilemap[1].SetOwner(p);
-    
-    p->Build<Woodcutter>(0);
-    p->Build<LumberMill>(1);
+    tilemap[2].SetOwner(p);
+    tilemap[0].tileType = ResourceType::IRON_ORE;
+    tilemap[1].tileType = ResourceType::COAL;
+    p->Build<Mine>(0);
+    p->Build<Mine>(1);
+    p->Build<Foundry>(2);
 
-    auto wc = tilemap[0].building.get();
-    auto lm = tilemap[1].building.get();
+    auto wc = tilemap[2].building.get();
+    auto lm = tilemap[0].building.get();
+    auto lm2 = tilemap[1].building.get();
 
-    wc->SetReceiver(ResourceType::WOOD, lm);
+    lm->SetReceiver(ResourceType::IRON_ORE, wc);
+    lm2->SetReceiver(ResourceType::COAL, wc);
 }
 
 void GameWorld::Update(double dt)

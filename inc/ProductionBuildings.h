@@ -16,13 +16,15 @@ class LumberMill : public ProductionBuilding
 class Mine : public ProductionBuilding
 {
     public:
-        Mine();
+        Mine(int);
         void InitBuilding(ResourceType) override;
 };
 class Foundry : public ProductionBuilding
 {
     public:
-        Foundry();
+        Foundry(int);
+        void SetSupplier(ResourceType, Building*) override;
+        void SetReceiver(ResourceType, Building*) override;
 };
 
 #endif

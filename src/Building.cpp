@@ -1,7 +1,13 @@
 #include "../inc/Building.h"
 #include "../inc/ProductionBuildings.h"
 #include "../inc/Player.h"
-
+ProductionBuilding::ProductionBuilding(int ajdi)
+{
+    id = ajdi;
+    type = ResourceType::Null;
+    name = "ProductionBuilding";
+    tag = "[ProductionBuilding]";
+}
 void ProductionBuilding::Update(double dt)
 {
     Produce(dt);
@@ -90,7 +96,7 @@ void ProductionBuilding::HandleTransport()
         if(isAvailable)
         {
             owner->BeginTransport(this, receiver, res);
-            Log::Msg(tag, "resource transport started!");
+            Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
         }
     }
 }
@@ -159,9 +165,12 @@ LumberMill::LumberMill(int i)
     outputBuffers.insert({ResourceType::PLANKS, output});
 }
 
-Mine::Mine()
+Mine::Mine(int i)
 {
     type = ResourceType::Null;
+    id = i;
+    name = "Mine";
+    tag = "[Mine]";
 }
 
 void Mine::InitBuilding(ResourceType tile)
@@ -170,49 +179,78 @@ void Mine::InitBuilding(ResourceType tile)
     if (type == ResourceType::IRON_ORE)
     {
         products.insert({ResourceType::IRON_ORE, 2});
-        productionTime = 1;
+        productionTime = 2;
         outputBuffers.insert({ResourceType::IRON_ORE, ResourceBuffer{ResourceType::IRON_ORE, 10}});
     }
     if (type == ResourceType::COAL)
     {
-        products.insert({ResourceType::COAL, 6});
-        productionTime = 4;
-        outputBuffers.insert({ResourceType::COAL, ResourceBuffer{ResourceType::COAL, 12}});
+        products.insert({ResourceType::COAL, 2});
+        productionTime = 2;
+        outputBuffers.insert({ResourceType::COAL, ResourceBuffer{ResourceType::COAL, 10}});
     }
 }
 
-Foundry::Foundry()
+Foundry::Foundry(int ajdi)
 {
+    id = ajdi;
     type = ResourceType::Null;
-    ResourceType inputType = ResourceType::Null;
-    bool allow = false;
-    switch (inputType)
+    name = "Foundry";
+    tag = "[Foundry]";
+}
+void Foundry::SetSupplier(ResourceType type, Building* supplier)
+{
+    // 1) foundry nic nie produkuje - czyli jest absolutnie nowy supplier
+    // czyli: ustawiamy suppliera, ustawiamy produkcje danego surowca
+    // 2) foundry coś produkuje i zmienia się supplier (tego samego surowca) ✅
+    // czyli: musimy po prostu zmienić pointer na dostawce ✅
+    // 3) foundry coś produkuje i zmienia się supplier i typ surowca
+    // czyli: musimy wszystko wyczyścić (mapy ingredients, products, suppliers, receivers itd) i ustawić na nowo
+    if(type != type && type != ResourceType::COAL) 
     {
-    case ResourceType::Null:
-        break;
-    case ResourceType::WOOD:
-        allow = true;
-        productionTime = 30;
-        inputBuffers.insert({ResourceType::WOOD, ResourceBuffer{ResourceType::WOOD, 2}});
-        break;
-    case ResourceType::COAL:
-        allow = true;
-        productionTime = 20;
-        inputBuffers.insert({ResourceType::COAL, ResourceBuffer{ResourceType::COAL, 2}});
-        break;
-    default:
-        break;
+        suppliersMap.clear();
+        ingredients.clear();
+        inputBuffers.clear();
+        outputBuffers.clear();
+        products.clear();
+        receiversMap.clear();
+    }
+    auto [it, ok] = suppliersMap.insert({type, supplier});
+    if(!ok)
+    {
+        suppliersMap[type] = supplier;
+        return;
     }
     switch (type)
     {
-    case ResourceType::Null:
-        break;
-    case ResourceType::IRON:
-        products.insert({ResourceType::IRON, 1});
-        inputBuffers.insert({ResourceType::IRON_ORE, ResourceBuffer{ResourceType::IRON_ORE, 1}});
-        outputBuffers.insert({ResourceType::IRON, ResourceBuffer{ResourceType::IRON_ORE, 1}});
-        break;
+    case ResourceType::IRON_ORE:
+    {
+    type = ResourceType::IRON;
+    products.insert({ResourceType::IRON, 2});
+    productionTime = 2;
+
+    ingredients.insert({ResourceType::IRON_ORE, 1});
+    ingredients.insert({ResourceType::COAL, 1});
+
+    ResourceBuffer output{ResourceType::IRON, 16};
+    ResourceBuffer input{ResourceType::IRON_ORE, 8};
+    ResourceBuffer input2{ResourceType::COAL, 8};
+
+
+    inputBuffers.insert({ResourceType::IRON_ORE, input});
+    inputBuffers.insert({ResourceType::COAL, input2});
+    outputBuffers.insert({ResourceType::IRON, output});
+    break;
+    }
+    
     default:
         break;
-    }
+    }    
+
 }
+    void Foundry::SetReceiver(ResourceType, Building*)
+    {
+
+    }
+
+
+
