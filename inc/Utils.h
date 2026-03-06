@@ -19,6 +19,7 @@ public:
     {
         std::cout << tag << " | ";
         (std::cout << ... << args) << " | " << CurrentTime() << '\n';
+        
     }
 
     static std::string CurrentTime()

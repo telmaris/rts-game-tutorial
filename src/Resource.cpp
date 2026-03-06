@@ -7,7 +7,7 @@ bool Resource::Update(double dt)
     if(elapsedTime >= transportTime)
     {
         // obsługa dostarczenia surowca do celu
-        Log::Msg(tag, "resource transport finished!");
+        //Log::Msg(tag, "resource transport finished!");
         targetBuilding->AddResource(Resource{type});
         return true;
     }
@@ -16,7 +16,7 @@ bool Resource::Update(double dt)
 
 void Resource::BeginTransport(Building* target, double time)
 {
-    Log::Msg(tag, "beginning the transport...");
+    //Log::Msg(tag, "beginning the transport...");
     targetBuilding = target;
     // ustawić transport/elapsed time
     transportTime = time;

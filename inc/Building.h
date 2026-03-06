@@ -53,6 +53,7 @@ class ProductionBuilding : public Building
 {
     public:
         ProductionBuilding() = default;
+        ProductionBuilding(int);
         
         virtual ~ProductionBuilding() = default;
 
@@ -62,8 +63,8 @@ class ProductionBuilding : public Building
         void AddResource(Resource) override;
         Resource GetResource(ResourceType) override;
 
-        void SetSupplier(ResourceType, Building*);
-        void SetReceiver(ResourceType, Building*);
+        virtual void SetSupplier(ResourceType, Building*);
+        virtual void SetReceiver(ResourceType, Building*);
         
         //protected:
         virtual void Produce(double);

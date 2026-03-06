@@ -7,7 +7,7 @@ int main(void)
 {
     auto g = std::make_unique<Game>();
     const auto tag = "[MAIN]";
-    
+
    g->InitGame();
    g->GameLoop();
 
