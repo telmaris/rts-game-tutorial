@@ -77,12 +77,12 @@ void GameWorld::InitWorld()
     p->Build<Mine>(1);
     p->Build<Foundry>(2);
 
-    auto wc = tilemap[2].building.get();
-    auto lm = tilemap[0].building.get();
-    auto lm2 = tilemap[1].building.get();
+    auto foundry = tilemap[2].building.get();
+    auto ironMine = tilemap[0].building.get();
+    auto coalMine = tilemap[1].building.get();
 
-    lm->SetReceiver(ResourceType::IRON_ORE, wc);
-    lm2->SetReceiver(ResourceType::COAL, wc);
+    ironMine->SetReceiver(ResourceType::IRON_ORE, foundry);
+    coalMine->SetReceiver(ResourceType::COAL, foundry);
 }
 
 void GameWorld::Update(double dt)
