@@ -22,6 +22,7 @@ class Building
 
         virtual void SetSupplier(ResourceType, Building*) = 0;
         virtual void SetReceiver(ResourceType, Building*) = 0;
+        virtual void HandleTransport(ResourceType res, int x, Building* building) = 0;
 
     Player* owner;
     Tile* placement;
@@ -69,6 +70,8 @@ class ProductionBuilding : public Building
         //protected:
         virtual void Produce(double);
         void HandleTransport();
+        void HandleTransport(ResourceType res, int x, Building* building) override;
+        void RequestResource(ResourceType ResType, int amount);
 
         ResourceType type;
         std::map<ResourceType, int> ingredients;    // to budynek pochłania do produkcji (1 para <resourcetype, int> per składnik)

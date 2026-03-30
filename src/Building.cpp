@@ -11,7 +11,7 @@ ProductionBuilding::ProductionBuilding(int ajdi)
 void ProductionBuilding::Update(double dt)
 {
     Produce(dt);
-    HandleTransport();
+    //HandleTransport();
 }
 
 void ProductionBuilding::Produce(double dt)
@@ -63,7 +63,9 @@ void ProductionBuilding::Produce(double dt)
             if (inputBuffers[resource].buffer.size() < amount)
             {
                 canStart = false;
-                return;
+                int amountcalculus = inputBuffers[resource].bufferSize - inputBuffers[resource].buffer.size();
+                RequestResource(resource, amountcalculus);
+                //return;
             }
         }
 
@@ -76,6 +78,7 @@ void ProductionBuilding::Produce(double dt)
                 {
                     inputBuffers[resource].buffer.pop_back();
                 }
+                RequestResource(resource, amount);
             }
             for (auto &[resource, amount] : products)
             {
@@ -85,8 +88,7 @@ void ProductionBuilding::Produce(double dt)
             productionStarted = true;
         }
     }
-}
-
+} 
 void ProductionBuilding::HandleTransport()
 {
     for(auto& [resource, receiver] : receiversMap)
@@ -99,6 +101,23 @@ void ProductionBuilding::HandleTransport()
             Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
         }
     }
+}
+void ProductionBuilding::HandleTransport(ResourceType resource, int amount, Building* receiver)
+{
+    for(int i = 0; i<amount; i++)
+    {
+        // check if given resource has been storaged in output buffer
+        auto [isAvailable, res] = outputBuffers[resource].GetResource();
+        if(isAvailable)
+        {
+            owner->BeginTransport(this, receiver, res);
+            Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
+        }
+    }
+}
+void ProductionBuilding::RequestResource(ResourceType ResType, int amount)
+{
+    suppliersMap[ResType]->HandleTransport(ResType,amount,this);
 }
 
 void ProductionBuilding::AddResource(Resource res)
