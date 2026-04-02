@@ -6,7 +6,13 @@
 
 class Player;
 class Tile;
-
+enum class BuildingType : int   
+{
+    Building = 0,
+    ProductionBuilding = 1,
+    StorageBuilding = 2,
+    MilitaryBuilding = 3
+};
 class Building
 {
     public:
@@ -28,6 +34,7 @@ class Building
     Tile* placement;
     int id;
     std::string name{"Building - Generic"};
+    BuildingType buildingType = BuildingType::Building;
     std::string tag;
 };
 
@@ -53,14 +60,14 @@ class Road : public Building
 class ProductionBuilding : public Building
 {
     public:
-        ProductionBuilding() = default;
-        ProductionBuilding(int);
-        
+    ProductionBuilding() = default;
+    ProductionBuilding(int);
+    
         virtual ~ProductionBuilding() = default;
 
         void Update(double) override;
         virtual void InitBuilding(ResourceType t) override { type = t;}
-
+        
         void AddResource(Resource) override;
         Resource GetResource(ResourceType) override;
 
@@ -83,9 +90,37 @@ class ProductionBuilding : public Building
         // 1 resource buffer per 1 resource type
         std::map<ResourceType, ResourceBuffer> inputBuffers;   // analogicznie do ingredients, para <resourcetype, resourcebuffer> per składnik
         std::map<ResourceType, ResourceBuffer> outputBuffers;
-
+        
         std::map<ResourceType, Building*> suppliersMap;
         std::map<ResourceType, Building*> receiversMap;
+};
+
+class StorageBuilding : public Building
+{
+public:
+    StorageBuilding() = default;
+    StorageBuilding(int);
+    
+        virtual ~StorageBuilding() = default;
+
+        void Update(double) override;        
+        void AddResource(Resource) override;
+        Resource GetResource(ResourceType) override;
+        void InitBuilding(ResourceType tajl) override;
+
+        virtual void SetSupplier(ResourceType, Building*);
+        virtual void SetReceiver(ResourceType, Building*);
+        
+        //protected:
+        //void HandleTransport();
+        void HandleTransport(ResourceType res, int x, Building* building) override;
+
+        std::map<ResourceType, ResourceBuffer> resourceBuffers;
+};
+
+class MilitaryBuilding : public Building    
+{
+
 };
 
 

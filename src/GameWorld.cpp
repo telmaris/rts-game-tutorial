@@ -71,18 +71,25 @@ void GameWorld::InitWorld()
     tilemap[0].SetOwner(p);
     tilemap[1].SetOwner(p);
     tilemap[2].SetOwner(p);
+    tilemap[3].SetOwner(p);
     tilemap[0].tileType = ResourceType::IRON_ORE;
     tilemap[1].tileType = ResourceType::COAL;
     p->Build<Mine>(0);
     p->Build<Mine>(1);
     p->Build<Foundry>(2);
+    p->Build<StorageBuilding>(3);
+    auto Foundration = tilemap[2].building.get();
+    auto Mine1 = tilemap[0].building.get();
+    auto Mine2 = tilemap[1].building.get();
+    auto Storage = tilemap[3].building.get();
 
-    auto foundry = tilemap[2].building.get();
-    auto ironMine = tilemap[0].building.get();
-    auto coalMine = tilemap[1].building.get();
+    Mine1->SetReceiver(ResourceType::IRON_ORE, Storage);
+    Mine2->SetReceiver(ResourceType::COAL, Storage);
+    Storage->SetReceiver(ResourceType::IRON_ORE, Foundration);
+    Storage->SetReceiver(ResourceType::COAL, Foundration);
+    Foundration->SetReceiver(ResourceType::IRON, Storage);
 
-    ironMine->SetReceiver(ResourceType::IRON_ORE, foundry);
-    coalMine->SetReceiver(ResourceType::COAL, foundry);
+
 }
 
 void GameWorld::Update(double dt)

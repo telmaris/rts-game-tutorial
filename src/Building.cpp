@@ -7,11 +7,12 @@ ProductionBuilding::ProductionBuilding(int ajdi)
     type = ResourceType::Null;
     name = "ProductionBuilding";
     tag = "[ProductionBuilding]";
+    buildingType = BuildingType::ProductionBuilding;
 }
 void ProductionBuilding::Update(double dt)
 {
     Produce(dt);
-    //HandleTransport();
+    HandleTransport();
 }
 
 void ProductionBuilding::Produce(double dt)
@@ -67,8 +68,8 @@ void ProductionBuilding::Produce(double dt)
                 RequestResource(resource, amountcalculus);
                 //return;
             }
-        }
-
+        }   
+                    
         // if yes, delete resources in buffers and start production
         if (canStart)
         {
@@ -94,11 +95,17 @@ void ProductionBuilding::HandleTransport()
     for(auto& [resource, receiver] : receiversMap)
     {
         // check if given resource has been storaged in output buffer
-        auto [isAvailable, res] = outputBuffers[resource].GetResource();
-        if(isAvailable)
+        if(receiver->buildingType == BuildingType::StorageBuilding)
         {
-            owner->BeginTransport(this, receiver, res);
-            Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
+            //inside
+            auto [isAvailable, res] = outputBuffers[resource].GetResource();
+            if(isAvailable)
+            {
+                owner->BeginTransport(this, receiver, res);
+                Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
+                //Log::Msg(tag, "ID: ", id, "The building type isL ", buildingType);
+            }
+
         }
     }
 }
@@ -270,6 +277,54 @@ void Foundry::SetSupplier(ResourceType type, Building* supplier)
     {
 
     }
+StorageBuilding::StorageBuilding(int actualId)
+{
+    id = actualId;
+    name = "Storage Building";
+    tag = "[StorageBuilding]";
+    resourceBuffers.insert({ResourceType::IRON, ResourceBuffer {ResourceType::IRON, 16}});
+    resourceBuffers.insert({ResourceType::IRON_ORE, ResourceBuffer {ResourceType::IRON_ORE, 16}});
+    resourceBuffers.insert({ResourceType::WOOD, ResourceBuffer {ResourceType::WOOD, 16}});
+    resourceBuffers.insert({ResourceType::PLANKS, ResourceBuffer {ResourceType::PLANKS, 16}});
+    resourceBuffers.insert({ResourceType::COAL, ResourceBuffer {ResourceType::COAL, 16}});
+    buildingType = BuildingType::StorageBuilding;
+}
+void StorageBuilding::AddResource(Resource res)
+{
+    Log::Msg(tag, "resource added!");
+    resourceBuffers[res.type].AddResource(res);
+}
 
+Resource StorageBuilding::GetResource(ResourceType type)
+{
+    resourceBuffers[type].GetResource();
+}
+void StorageBuilding::HandleTransport(ResourceType resource, int amount, Building* receiver)
+{
+    for(int i = 0; i<amount; i++)
+    {
+        // check if given resource has been storaged in output buffer
+        auto [isAvailable, res] = resourceBuffers[resource].GetResource();
+        if(isAvailable)
+        {
+            owner->BeginTransport(this, receiver, res);
+            Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
+        }
+    }
+}
+void StorageBuilding::Update(double dt)
+{
 
+}
+void StorageBuilding::SetReceiver(ResourceType type, Building* receiver)
+{
+    receiver->SetSupplier(type, this);
+}
+void StorageBuilding::SetSupplier(ResourceType type, Building* receiver)
+{
+    
+}
+void StorageBuilding::InitBuilding(ResourceType tajl)
+{
 
+}
