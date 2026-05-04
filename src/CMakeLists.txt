@@ -7,4 +7,5 @@ include_directories(../inc)
                        Building.cpp
                        Game.cpp
                        Resource.cpp
-                       RoadNetwork.cpp)
+                       RoadNetwork.cpp
+                       MapGenerator.cpp)

@@ -10,6 +10,8 @@
 #include <map>
 #include <iomanip>
 #include <utility>
+#include <algorithm>
+#include <queue>
 
 class Log
 {
@@ -42,4 +44,20 @@ public:
         return oss.str();
     }
 };
+
+template <typename T> struct Vec2
+{
+    Vec2(T px, T py) : x(px), y(py) {}
+    T x,y;
+
+    friend std::ostream& operator << (std::ostream& os, const Vec2& rhs)
+    {
+        std::cout << "[" << rhs.x << ", " << rhs.y << "] ";
+        return os;
+    }
+};
+
+using Vec2i = Vec2<int>;
+using Vec2f = Vec2<float>;
+
 #endif

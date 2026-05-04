@@ -1,6 +1,51 @@
 #include "../inc/Building.h"
 #include "../inc/ProductionBuildings.h"
 #include "../inc/Player.h"
+#include "../inc/MapGenerator.h"
+
+void Building::UpdateTransportables(double dt)
+{
+    for (auto it = transportables.begin(); it != transportables.end();)
+    {
+        bool flag = (*it)->Update(dt);
+        if (flag == true)
+        {
+            // usunięcie resource z vectora, dodanie go do celu
+            Log::Msg(tag, "resource ", rt2s(((Resource*)(*it))->type)," deleted from transportables vector! position: ", (*it)->map->GetCoordsFromId(positionId));
+            transportables.erase(it);
+            continue;
+        }
+        it++;
+    }
+}
+
+void Building::ReceptTransport(Transportable* trans)
+{
+    trans->elapsedTime = 0.0;
+    trans->transportTime = transportTime;
+    
+    if(trans->sourceBuilding != this)
+    {
+        trans->currentPathStep++;
+    }
+
+    if(trans->targetBuilding == this)
+    {
+        auto ptr = dynamic_cast<Resource*>(trans);
+        if(ptr != nullptr)
+        {
+            Log::Msg(tag, "Transport of ", rt2s(ptr->type)," finished, adding resource to the buffer! at ID:", positionId, " position: ", trans->map->GetCoordsFromId(positionId));
+            AddResource(ptr);
+        }
+    }
+    else 
+    {
+        transportables.push_back(trans);
+        Log::Msg(tag, rt2s(((Resource*)trans)->type)," pushed into transportables vector! at ID: ", positionId, " position: ", trans->map->GetCoordsFromId(positionId));
+    }
+
+}
+
 ProductionBuilding::ProductionBuilding(int ajdi)
 {
     id = ajdi;
@@ -9,10 +54,12 @@ ProductionBuilding::ProductionBuilding(int ajdi)
     tag = "[ProductionBuilding]";
     buildingType = BuildingType::ProductionBuilding;
 }
+
 void ProductionBuilding::Update(double dt)
 {
     Produce(dt);
     HandleTransport();
+    UpdateTransportables(dt);
 }
 
 void ProductionBuilding::Produce(double dt)
@@ -27,7 +74,7 @@ void ProductionBuilding::Produce(double dt)
             {
                 for (int i = 0; i < amount; i++)
                 {
-                    outputBuffers[resource].buffer.emplace_back(Resource{resource});
+                    outputBuffers[resource].GenerateResource(resource);
                     Log::Msg(tag, "Created a resource: ", rt2s(resource));
                 }
             }
@@ -49,6 +96,7 @@ void ProductionBuilding::Produce(double dt)
         // first, check if output buffers have space
         for (auto &[resource, buffer] : outputBuffers)
         {
+            // todo: check for difference between available capacity and production volume
             if (buffer.buffer.size() >= buffer.bufferSize)
             {
                 // Log::Msg("[production building]", "Cannot start due to the full output buffer!");
@@ -77,7 +125,7 @@ void ProductionBuilding::Produce(double dt)
             {
                 for (int i = 0; i < amount; i++)
                 {
-                    inputBuffers[resource].buffer.pop_back();
+                    inputBuffers[resource].FreeResource();
                 }
                 RequestResource(resource, amount);
             }
@@ -89,7 +137,8 @@ void ProductionBuilding::Produce(double dt)
             productionStarted = true;
         }
     }
-} 
+}
+
 void ProductionBuilding::HandleTransport()
 {
     for(auto& [resource, receiver] : receiversMap)
@@ -101,14 +150,13 @@ void ProductionBuilding::HandleTransport()
             auto [isAvailable, res] = outputBuffers[resource].GetResource();
             if(isAvailable)
             {
+                Log::Msg(tag, "ID: ", id, " ", rt2s(res->type), " transport started to ", receiver->name, " with ID ", receiver->id);
                 owner->BeginTransport(this, receiver, res);
-                Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
-                //Log::Msg(tag, "ID: ", id, "The building type isL ", buildingType);
             }
-
         }
     }
 }
+
 void ProductionBuilding::HandleTransport(ResourceType resource, int amount, Building* receiver)
 {
     for(int i = 0; i<amount; i++)
@@ -117,20 +165,21 @@ void ProductionBuilding::HandleTransport(ResourceType resource, int amount, Buil
         auto [isAvailable, res] = outputBuffers[resource].GetResource();
         if(isAvailable)
         {
+            Log::Msg(tag, "ID: ", id, " ", rt2s(res->type), " transport started to ", receiver->name, " with ID ", receiver->id);
             owner->BeginTransport(this, receiver, res);
-            Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
         }
     }
 }
+
 void ProductionBuilding::RequestResource(ResourceType ResType, int amount)
 {
     suppliersMap[ResType]->HandleTransport(ResType,amount,this);
 }
 
-void ProductionBuilding::AddResource(Resource res)
+void ProductionBuilding::AddResource(Resource* res)
 {
     Log::Msg(tag, "resource added!");
-    inputBuffers[res.type].AddResource(res);
+    inputBuffers[res->type].AddResource(res);
 }
 
 Resource ProductionBuilding::GetResource(ResourceType type)
@@ -157,7 +206,10 @@ void ProductionBuilding::SetReceiver(ResourceType type, Building* receiver)
     receiver->SetSupplier(type, this);
 }
 
-
+void ProductionBuilding::ReceptTransport(Transportable* trans)
+{
+    // transportables.push_back(trans);
+}
 
 // ===== BUILDINGS =====
 
@@ -289,10 +341,10 @@ StorageBuilding::StorageBuilding(int actualId)
     resourceBuffers.insert({ResourceType::COAL, ResourceBuffer {ResourceType::COAL, 16}});
     buildingType = BuildingType::StorageBuilding;
 }
-void StorageBuilding::AddResource(Resource res)
+void StorageBuilding::AddResource(Resource* res)
 {
     Log::Msg(tag, "resource added!");
-    resourceBuffers[res.type].AddResource(res);
+    resourceBuffers[res->type].AddResource(res);
 }
 
 Resource StorageBuilding::GetResource(ResourceType type)
@@ -307,14 +359,14 @@ void StorageBuilding::HandleTransport(ResourceType resource, int amount, Buildin
         auto [isAvailable, res] = resourceBuffers[resource].GetResource();
         if(isAvailable)
         {
+            Log::Msg(tag, "ID: ", id, " ", rt2s(res->type), " transport started to ", receiver->name, " with ID ", receiver->id);
             owner->BeginTransport(this, receiver, res);
-            Log::Msg(tag, "ID: ", id, " ", rt2s(res.type), " transport started to ", receiver->name, " with ID ", receiver->id);
         }
     }
 }
 void StorageBuilding::Update(double dt)
 {
-
+    UpdateTransportables(dt);
 }
 void StorageBuilding::SetReceiver(ResourceType type, Building* receiver)
 {
@@ -326,5 +378,27 @@ void StorageBuilding::SetSupplier(ResourceType type, Building* receiver)
 }
 void StorageBuilding::InitBuilding(ResourceType tajl)
 {
-
+    
 }
+
+void StorageBuilding::ReceptTransport(Transportable* trans)
+{
+    // transportables.push_back(trans);
+}
+
+Road::Road(int i)
+{
+    id = i;
+    name = "Road";
+    tag = "[Road]";
+    buildingType = BuildingType::Road;
+    transportTime = 1.0;
+}
+
+void Road::Update(double dt)
+{
+    UpdateTransportables(dt);
+}
+
+
+

@@ -3,6 +3,7 @@
 void Tile::CreateBuilding(std::unique_ptr<Building> &&bld)
 {
     building = std::move(bld);
+    building->placement = this;
     building->InitBuilding(tileType);
 }
 
@@ -21,6 +22,7 @@ bool Tile::CanBuild(Player *player)
     bool allowed = true;
     if (player != owner)
     {
+        Log::Msg("[Tile]", " player is not an owner");
         allowed = false;
     }
     if (building != nullptr)
@@ -45,8 +47,9 @@ void TileMap::BuildOnTile(int id, Player *player, std::unique_ptr<Building> &&bu
     Tile &tile = tilemap[id];
     if (tile.CanBuild(player))
     {
-        Log::Msg(building->tag, building->id, "Created");
+        Log::Msg(building->tag, building->id, " Created");
         building->owner = player;
+        building->positionId = id;
         tile.CreateBuilding(std::move(building));
     }
 }
@@ -58,38 +61,75 @@ void TileMap::UpdateBuildings(double dt)
         if(tile.building != nullptr) tile.building->Update(dt);
     }
 }
+
+Building* TileMap::GetBuilding(int id)
+{
+    if(id < 0 || id >= tilemap.size()) return nullptr;
+    return tilemap[id].building.get();
+}
+
+Building* TileMap::GetBuilding(Vec2i pos)
+{
+    GetBuilding(GetIdFromCoords(pos));
+}
+
+int TileMap::GetIdFromCoords(Vec2i coords)
+{
+    return (coords.x + coords.y*params.sizeX);
+}
+
+Vec2i TileMap::GetCoordsFromId(int id)
+{
+    return Vec2i{id % params.sizeX, id / params.sizeX};
+}
+
+void TileMap::SetTerritory(Vec2i source, int size, Player* player)
+{
+    // size is a square side length
+    if((source.x - size/2) < 0 || (source.x + size/2) >= params.sizeX ||
+        (source.y - size/2) < 0 || (source.y + size/2) >= params.sizeY) return;
+
+        Vec2i startingPos{source.x - size/2, source.y - size/2};
+        Log::Msg("Set territory", "territory starting pos: ", startingPos.x, " ", startingPos.y);
+
+    for(int x = 0; x < size; x++)
+    {
+        for(int y = 0; y < size; y++)
+        {
+            tilemap[GetIdFromCoords({startingPos.x + x, startingPos.y + y})].SetOwner(player);
+            // todo: check if neighbouring territory isnt occupied by enemy player
+        }
+    }
+}
+
+// =====================================================
+
 void GameWorld::InitWorld()
 {
-    // initialite the tile
-    tilemap.tilemap.emplace_back(0);
-    tilemap.tilemap.emplace_back(1);
-    tilemap.tilemap.emplace_back(2);
+    MapParameters params;
+    params.sizeX = 25;
+    params.sizeY = 25;
+
+    tilemap.generator.GenerateTileMap(tilemap, params);
 
     playerHandler.players.insert({0, std::make_unique<Player>(0, tilemap)});
     auto p = playerHandler.players[0].get();
-    // Player p{0x1000, tilemap.get()};
-    tilemap[0].SetOwner(p);
-    tilemap[1].SetOwner(p);
-    tilemap[2].SetOwner(p);
-    tilemap[3].SetOwner(p);
-    tilemap[0].tileType = ResourceType::IRON_ORE;
-    tilemap[1].tileType = ResourceType::COAL;
-    p->Build<Mine>(0);
-    p->Build<Mine>(1);
-    p->Build<Foundry>(2);
-    p->Build<StorageBuilding>(3);
-    auto Foundration = tilemap[2].building.get();
-    auto Mine1 = tilemap[0].building.get();
-    auto Mine2 = tilemap[1].building.get();
-    auto Storage = tilemap[3].building.get();
+
+    tilemap.SetTerritory({12,12}, 25, p);
+    tilemap[{1,11}].tileType = ResourceType::IRON_ORE;
+
+    auto Mine1 = p->Build<Mine>({1,11});
+    auto Storage = p->Build<StorageBuilding>({10,11});
+
+    for(int x = 2; x < 10; x++)
+    {
+        for(int y = 1; y < 20; y++)
+        {
+            p->Build<Road>({x,y});
+        }
+    }
 
     Mine1->SetReceiver(ResourceType::IRON_ORE, Storage);
-    Mine2->SetReceiver(ResourceType::COAL, Storage);
-    Storage->SetReceiver(ResourceType::IRON_ORE, Foundration);
-    Storage->SetReceiver(ResourceType::COAL, Foundration);
-    Foundration->SetReceiver(ResourceType::IRON, Storage);
-
-
 }
 
 void GameWorld::Update(double dt)
