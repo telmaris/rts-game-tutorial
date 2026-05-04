@@ -1,29 +1,9 @@
 #include "../inc/Resource.h"
 #include "../inc/Building.h"
 
-bool Resource::Update(double dt)
-{
-    elapsedTime += dt;
-    if(elapsedTime >= transportTime)
-    {
-        // obsługa dostarczenia surowca do celu
-        //Log::Msg(tag, "resource transport finished!");
-        targetBuilding->AddResource(Resource{type});
-        return true;
-    }
-    return false;
-}
+static ResourcePool resourcePool;
 
-void Resource::BeginTransport(Building* target, double time)
-{
-    //Log::Msg(tag, "beginning the transport...");
-    targetBuilding = target;
-    // ustawić transport/elapsed time
-    transportTime = time;
-    elapsedTime = 0;
-}
-
-void ResourceBuffer::AddResource(Resource& res)
+void ResourceBuffer::AddResource(Resource* res)
 {
     if(buffer.size() < bufferSize)
     {
@@ -31,7 +11,8 @@ void ResourceBuffer::AddResource(Resource& res)
     }
 }
 
-std::pair<bool, Resource> ResourceBuffer::GetResource()
+//todo: usunąć std::pair
+std::pair<bool, Resource*> ResourceBuffer::GetResource()
 {
     if(buffer.size() > 0)
     {
@@ -39,5 +20,31 @@ std::pair<bool, Resource> ResourceBuffer::GetResource()
         buffer.pop_back();
         return {true, res};
     }
-    return {false, Resource{}};
+    return {false, nullptr};
+}
+
+void ResourceBuffer::GenerateResource(ResourceType type)
+{
+    auto res = resourcePool.GetResource(type);
+    AddResource(res);
+}
+
+void ResourceBuffer::FreeResource()
+{
+    auto res = buffer.back();
+    resourcePool.FreeResource(res);
+    buffer.pop_back();
+}
+
+Resource* ResourcePool::GetResource(ResourceType type)
+{
+    auto res = addressPool[type].addresses.front();
+    addressPool[type].addresses.pop_front();
+    return res;
+}
+
+void ResourcePool::FreeResource(Resource* res)
+{
+    auto type = res->type;
+    addressPool[type].addresses.push_front(res);
 }

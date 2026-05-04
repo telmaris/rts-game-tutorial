@@ -12,16 +12,28 @@ class Player
 {
 public:
     Player() = default;
-    Player(int i, TileMap& tmap) : tilemap(tmap), id(i), build(this, tilemap){ roadNetwork = std::make_unique<RoadNetwork>();}
+    Player(int i, TileMap& tmap) : tilemap(tmap), id(i), build(this, tilemap){ roadNetwork = std::make_unique<RoadNetwork>(tilemap);}
 
     template <typename T>
-    void Build(int tilePos)
+    Building* Build(int tilePos)
     {
         static_assert(std::is_base_of<Building, T>::value);
         build.Build<T>(tilePos);
+        auto bld = tilemap.GetBuilding(tilePos);
+        if(bld != nullptr)
+        {
+            roadNetwork->UpdateNavMap(tilePos, bld);
+        }
+        return bld;
     }
 
-    inline void BeginTransport(Building* src, Building* dest, Resource res)
+    template <typename T>
+    Building* Build(Vec2i pos)
+    {
+        return Build<T>(tilemap.GetIdFromCoords(pos));
+    }
+
+    inline void BeginTransport(Building* src, Building* dest, Resource* res)
     {
         roadNetwork->BeginTransport(src, dest, res);
     }

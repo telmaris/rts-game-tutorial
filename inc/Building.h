@@ -3,16 +3,20 @@
 
 #include "Utils.h"
 #include "Resource.h"
+#include "Transport.h"
 
 class Player;
 class Tile;
+
 enum class BuildingType : int   
 {
     Building = 0,
     ProductionBuilding = 1,
     StorageBuilding = 2,
-    MilitaryBuilding = 3
+    MilitaryBuilding = 3,
+    Road = 4
 };
+
 class Building
 {
     public:
@@ -23,36 +27,48 @@ class Building
         virtual void Update(double) = 0;
         virtual void InitBuilding(ResourceType) = 0;
 
-        virtual void AddResource(Resource) = 0;
+        virtual void AddResource(Resource*) = 0;
         virtual Resource GetResource(ResourceType) = 0;
 
         virtual void SetSupplier(ResourceType, Building*) = 0;
         virtual void SetReceiver(ResourceType, Building*) = 0;
         virtual void HandleTransport(ResourceType res, int x, Building* building) = 0;
 
+        void ReceptTransport(Transportable*);
+        void UpdateTransportables(double);
+
     Player* owner;
     Tile* placement;
     int id;
+    int positionId;
     std::string name{"Building - Generic"};
     BuildingType buildingType = BuildingType::Building;
     std::string tag;
+    std::vector<Transportable*> transportables;
+    double transportTime = 0.0;
 };
 
 class Road : public Building
 {
     public:
         Road() = default;
+        Road(int i);
 
         void Update(double);
+        void InitBuilding(ResourceType) {}
+
+        void AddResource(Resource*) {}
+        Resource GetResource(ResourceType) {}
+        void HandleTransport(ResourceType res, int x, Building* building) {}
 
         void SetSupplier(ResourceType, Building*) {}
         void SetReceiver(ResourceType, Building*) {}
 
-        std::string tag{"[Road]"};
+        void ReceptTransport(Transportable*);
+
         int upgradeLevel;
         int maxCapacity = 5;
         double speedModifier = 1.0;
-        std::vector<Resource> resources;
 };
 
 // todo: jak zaplanować rozkaz wydawania surowców: priorytet ma producent czy odbiorca?
@@ -68,7 +84,7 @@ class ProductionBuilding : public Building
         void Update(double) override;
         virtual void InitBuilding(ResourceType t) override { type = t;}
         
-        void AddResource(Resource) override;
+        void AddResource(Resource*) override;
         Resource GetResource(ResourceType) override;
 
         virtual void SetSupplier(ResourceType, Building*);
@@ -79,6 +95,8 @@ class ProductionBuilding : public Building
         void HandleTransport();
         void HandleTransport(ResourceType res, int x, Building* building) override;
         void RequestResource(ResourceType ResType, int amount);
+
+        void ReceptTransport(Transportable*);
 
         ResourceType type;
         std::map<ResourceType, int> ingredients;    // to budynek pochłania do produkcji (1 para <resourcetype, int> per składnik)
@@ -104,12 +122,14 @@ public:
         virtual ~StorageBuilding() = default;
 
         void Update(double) override;        
-        void AddResource(Resource) override;
+        void AddResource(Resource*) override;
         Resource GetResource(ResourceType) override;
         void InitBuilding(ResourceType tajl) override;
 
         virtual void SetSupplier(ResourceType, Building*);
         virtual void SetReceiver(ResourceType, Building*);
+
+        void ReceptTransport(Transportable*);
         
         //protected:
         //void HandleTransport();
@@ -120,7 +140,7 @@ public:
 
 class MilitaryBuilding : public Building    
 {
-
+    
 };
 
 
