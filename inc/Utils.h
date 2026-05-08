@@ -12,7 +12,20 @@
 #include <utility>
 #include <algorithm>
 #include <queue>
+#include <array>
+#include <functional>
+#include <random> //zrobic klase random ktroa bedzie losowac liczby w danym zakresie
 
+class Random
+{
+    public:
+    static void normalized(int a, int b)
+    {
+        std::mt19937 generator (123);
+        std::uniform_real_distribution<double> dis(a, b);
+        double randomRealBetweenZeroAndOne = dis(generator);
+    }
+};
 class Log
 {
 public:
