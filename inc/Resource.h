@@ -42,7 +42,7 @@ struct Resource : Transportable
 {
     Resource() = default;
     Resource(ResourceType rtype) : type(rtype) {}
-
+    ~Resource() = default;
     std::string tag{"[Resource]"};
     ResourceType type{ResourceType::Null};
 };
@@ -52,7 +52,7 @@ class ResourceBuffer
     public:
         ResourceBuffer(ResourceType t, int size) : type(t), bufferSize(size) {}
         ResourceBuffer() = default;
-        
+
         int bufferSize;
         ResourceType type;  // buffer can allocate 1 type of resources
 
