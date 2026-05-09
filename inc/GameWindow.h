@@ -1,29 +1,42 @@
 #ifndef GAMEWINDOW_H
 #define GAMEWINDOW_H
 
-//#include "Utils.h"
-#include "Gui.h"
+#include "Events.h"
 
-class Scene 
+class Scene : public EventClient
 {
     public:
     virtual void Update(double dt) = 0;
-    
 };
 
 
-class GameWindow
+class GameWindow : public EventBroker
 {
     public:
-    void AddScene(std::string name, std::shared_ptr<Scene> scene)
+
+    void HandleEvent(std::shared_ptr<Event>) override;
+
+    template <typename T> void AddScene(std::string name)
     {
+        static_assert(std::is_base_of<Scene, T>::value);
+
+        auto scene = std::make_shared<T>();
+        scene->broker = this;
         scenes.insert({name, scene});
+        
+        AddClient(name, scene.get());
     }
 
-    void Update(double dt)
+    inline void Update(double dt)
     {
         activeScene->Update(dt);
     }
+
+    void UpdateWindowSize();
+
+    void LaunchGame();
+
+    void MainLoop();
 
     // 1) funkcje związane z zarządzaniem oknem i FPS
     // 2) agregacja i zarządzanie logiką gry (class Game)
@@ -31,11 +44,13 @@ class GameWindow
     // 4) zarządzanie renderem assetów Game (tekstury i dźwięk)
     // 5) przechwytywanie i przekazywanie Inputu z myszy/klawiatury
 
-    void f(int i) const {std::cout << "Printed by GameWindow: " << i << std::endl;}
-
-    void ChangeScene(std::string name) {activeScene = scenes[name];}
+    inline void ChangeScene(std::string name) {activeScene = scenes[name];}
 
     std::map<std::string, std::shared_ptr<Scene>> scenes;
     std::shared_ptr<Scene> activeScene;
+
+    bool isRunning = true;
+    const std::string tag{"GameWindow"};
+    Vec2i lastWindowSize;
 };
 #endif

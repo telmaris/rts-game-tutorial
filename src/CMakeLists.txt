@@ -8,4 +8,7 @@ include_directories(../inc)
                        Game.cpp
                        Resource.cpp
                        RoadNetwork.cpp
-                       MapGenerator.cpp)
+                       MapGenerator.cpp
+                       GameWindow.cpp
+                       Scenes.cpp
+                       Gui.cpp)
