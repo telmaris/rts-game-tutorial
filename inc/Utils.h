@@ -15,6 +15,7 @@
 #include <array>
 #include <functional>
 #include <random> //zrobic klase random ktroa bedzie losowac liczby w danym zakresie
+#include <type_traits>
 
 class Random
 {
@@ -58,19 +59,42 @@ public:
     }
 };
 
-template <typename T> struct Vec2
+template <typename T>
+struct Vec2
 {
     Vec2(T px, T py) : x(px), y(py) {}
-    T x,y;
+    Vec2() = default;
 
-    friend std::ostream& operator << (std::ostream& os, const Vec2& rhs)
+    T x{0}, y{0};
+
+    friend std::ostream& operator<<(std::ostream& os, const Vec2& rhs)
     {
-        std::cout << "[" << rhs.x << ", " << rhs.y << "] ";
+        os << "[" << rhs.x << ", " << rhs.y << "]";
         return os;
+    }
+
+    bool operator==(const Vec2& rhs) const
+    {
+        return (x == rhs.x) && (y == rhs.y);
+    }
+
+    bool operator!=(const Vec2& rhs) const
+    {
+        return !(*this == rhs);
     }
 };
 
 using Vec2i = Vec2<int>;
 using Vec2f = Vec2<float>;
 
+template <typename T>
+struct Vec4
+{
+    Vec4(T px, T py, T pz, T pw) : x(px), y(py), z(pz), w(pw) {}
+    Vec4() = default;
+
+    T x{0}, y{0}, z{0}, w{0};
+};
+
+using Vec4i = Vec4<int>;
 #endif

@@ -2,59 +2,40 @@
 #define SCENES_H
 
 #include "GameWindow.h"
+#include "Gui.h"
 
 class MainMenuScene : public Scene
 {
     public: 
 
-    MainMenuScene()
-    {
-        newGameButton.ChangeText("New Game");
-        newGameButton.ChangePosition(200,50);
-        newGameButton.func = std::bind(&MainMenuScene::OnNewGamePressed, this);
-        loadGameButton.ChangeText("Load Game");
-        loadGameButton.ChangePosition(200,150);
-        loadGameButton.func = std::bind(&MainMenuScene::OnLoadGamePressed, this);
-        optionsButton.ChangeText("Options");
-        optionsButton.ChangePosition(200,250);
-        optionsButton.func = std::bind(&MainMenuScene::OnOptionsPressed, this);
-        quitButton.ChangeText("Quit");
-        quitButton.ChangePosition(200,350);
-        quitButton.func = std::bind(&MainMenuScene::OnQuitPressed, this);
-        //quitobutton
-    }
+    MainMenuScene();
 
-    void Update(double dt) override
-    {
-        newGameButton.Update(dt);
-        loadGameButton.Update(dt);
-        optionsButton.Update(dt);
-        quitButton.Update(dt);
-    }
+    void Update(double dt) override;
 
-    void OnNewGamePressed()
-    {
-        std::cout << "OnNewGamePressed\n";
-    }
+    void OnNewGamePressed();
+    void OnLoadGamePressed();
+    void OnOptionsPressed();
+    void OnQuitPressed();
 
-    void OnLoadGamePressed()
-    {
-        std::cout << "OnLOADGamePressed\n";
-    }
-    void OnOptionsPressed()
-    {
-        std::cout << "OnOPTIOBSPressed\n";
-    }
-    void OnQuitPressed()
-    {
-        std::cout << "OnQUITPressed\n";
-        
-    }
+    void HandleEvent(std::shared_ptr<Event>) override;
 
-    UiButton newGameButton;
-    UiButton loadGameButton;
-    UiButton optionsButton;
-    UiButton quitButton;
+    // UiButton newGameButton;
+    // UiButton loadGameButton;
+    // UiButton optionsButton;
+    // UiButton quitButton;
+    VBox buttonsColumn;
+};
+
+class OptionsScene : public Scene
+{
+    public:
+
+        OptionsScene();
+        void Update(double dt) override;
+
+        void OnBackPressed();
+
+        UiButton backButton;
 };
 
 #endif

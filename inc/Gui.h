@@ -2,9 +2,7 @@
 #define GUI_H
 
 #include "Utils.h"
-#include "raylib.h"
-#define RAYGUI_IMPLEMENTATION
-#include "raygui.h"
+
 
 class UiWidget
 {
@@ -12,12 +10,12 @@ class UiWidget
 
     virtual void Update(double dt) = 0;
 
-    void ChangePosition(int x, int y)
+    inline void ChangePosition(int x, int y)
     {
         pos.x = x;
         pos.y = y;
     }
-    void ChangeSize(int sizeX, int sizeY)
+    inline void ChangeSize(int sizeX, int sizeY)
     {
         size.x = sizeX;
         size.y = sizeY;
@@ -32,11 +30,8 @@ class UiButton : public UiWidget
 {
     public:
     
-    void Update(double dt) override
-    {
-        if(GuiButton((Rectangle){pos.x,pos.y,size.x,size.y}, text.c_str())) OnClick();
-    }
-    void ChangeText(std::string stryng)
+    void Update(double dt) override;
+   inline  void ChangeText(std::string stryng)
     {
         text = stryng;
     }
@@ -46,6 +41,52 @@ class UiButton : public UiWidget
     std::string text{"Default button text"};
     std::function<void()> func;
     int number;
+};
+
+class VBox : public UiWidget
+{
+    public:
+
+    void Update(double dt) override;
+
+    inline void UpdateSize(Vec2i windowSize)
+    {
+        pos = Vec2i{windowSize.x * posAnchor.x, windowSize.y * posAnchor.y};
+        size = Vec2i{windowSize.x * sizeAnchor.x, windowSize.y * sizeAnchor.y};
+
+        int childrenCount = children.size();
+        Vec2i childrenSize{size.x, size.y / childrenCount};
+
+        for(int i = 0; i < childrenCount; i++)
+        {
+            children[i]->size = childrenSize;
+            children[i]->pos = Vec2i{pos.x, pos.y + (childrenSize.y + margins.y) * i};
+        }
+    }
+
+    void UpdateSize()
+    {
+        int childrenCount = children.size();
+        Vec2i childrenSize{size.x, size.y / childrenCount};
+
+        for(int i = 0; i < childrenCount; i++)
+        {
+            children[i]->size = childrenSize;
+            children[i]->pos = Vec2i{pos.x, pos.y + (childrenSize.y + margins.y) * i};
+        }
+    }
+
+    void AddChild(std::shared_ptr<UiWidget> child)
+    {
+        children.push_back(child);
+        UpdateSize();
+    }
+
+    std::vector<std::shared_ptr<UiWidget>> children;
+
+    Vec2f posAnchor{0.2f, 0.2f};
+    Vec2f sizeAnchor{0.1f, 0.3f};
+    Vec4i margins{0, 5, 0, 0};  // up down left right
 };
 
 #endif
