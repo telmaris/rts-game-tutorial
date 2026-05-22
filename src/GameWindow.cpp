@@ -31,6 +31,12 @@ void GameWindow::HandleEvent(std::shared_ptr<Event> e)
     {
         ChangeScene(ptr2->sceneName);
     }
+
+    auto ptr3 = std::dynamic_pointer_cast<ToggleFullscreenEvent>(e);
+    if (ptr3 != nullptr)
+    {
+        ToggleFullscreen();
+    }
 }
 
 void GameWindow::MainLoop()

@@ -32,6 +32,35 @@ class OptionsScene : public Scene
 
         OptionsScene();
         void Update(double dt) override;
+        void HandleEvent(std::shared_ptr<Event>) override;
+
+        void OnBackPressed();
+
+        UiButton backButton;
+        CheckBox fullScreenCheckBox;
+        SliderBar masterVolume;
+};
+
+class NewGameScene : public Scene
+{
+    public:
+
+        NewGameScene();
+        void Update(double dt) override;
+        void HandleEvent(std::shared_ptr<Event>) override;
+
+        void OnBackPressed();
+
+        UiButton backButton;
+};
+
+class LoadGameScene : public Scene
+{
+    public:
+
+        LoadGameScene();
+        void Update(double dt) override;
+        void HandleEvent(std::shared_ptr<Event>) override;
 
         void OnBackPressed();
 
