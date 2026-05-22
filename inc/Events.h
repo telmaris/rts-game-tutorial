@@ -72,4 +72,9 @@ struct WindowSizeChangedEvent : Event
     Vec2i windowSize;
 };
 
+struct ToggleFullscreenEvent : Event
+{
+    ToggleFullscreenEvent() {msgName = "ToggleFullscreenEvent";}
+};
+
 #endif
