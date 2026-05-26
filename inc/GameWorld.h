@@ -3,7 +3,7 @@
 
 #include "Utils.h"
 #include "MapGenerator.h"
-
+#include "Renderer.h"
 
 class PlayerHandler
 {
@@ -13,17 +13,26 @@ class PlayerHandler
         std::map<int, std::unique_ptr<Player>> players;
 };
 
+// main game logic class
+// todo: make save by serializing GameWorld class
+
 class GameWorld
 {
     public:
         GameWorld() = default;
 
-        void InitWorld();
+        void InitWorld(std::string, Renderer*);
         void Update(double);
 
     
         TileMap tilemap;
         PlayerHandler playerHandler;
+        Renderer* render;
+        std::string worldName{"default"};
+
+
+        // test!!
+        Texture2D test;
 };
 
 

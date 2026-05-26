@@ -104,8 +104,13 @@ void TileMap::SetTerritory(Vec2i source, int size, Player* player)
 
 // =====================================================
 
-void GameWorld::InitWorld()
+void GameWorld::InitWorld(std::string name, Renderer* r)
 {
+    worldName = name;
+    render = r;
+    test = LoadTexture("../assets/textures/test_tex.png");
+    // test = LoadTexture("../assets/textures/atlas0.png");
+
     MapParameters params;
     params.sizeX = 25;
     params.sizeY = 25;
@@ -135,8 +140,21 @@ void GameWorld::InitWorld()
 void GameWorld::Update(double dt)
 {
     // update everything like prodution timers, transport, combat, research etc.
-
+    
     // update tilemap with buildings
     tilemap.UpdateBuildings(dt);
-    playerHandler.players[0]->roadNetwork->Update(dt);
+    // playerHandler.players[0]->roadNetwork->Update(dt);
+    // render->DrawOnLayer(1, test, {100,100});
+    // render->DrawOnLayer(2, test, {200,200});
+    // render->DrawOnLayer(1, render->atlasMap[0].tex, {0,0});
+
+    for(int x = 0; x < 20; x++)
+    {
+        for(int y = 0; y < 20; y++)
+        {
+            render->DrawOnLayer(0, 0, 0, {x*32, y*32});
+        }
+    }
+    // call to render
+    // render->DrawOnLayer();
 }

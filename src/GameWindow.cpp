@@ -9,6 +9,10 @@ void GameWindow::LaunchGame()
     AddScene<MainMenuScene>("MainScene");
     ChangeScene("MainScene");
     AddScene<OptionsScene>("OptionsScene");
+    AddScene<GameScene>("GameScene");
+    AddScene<NewGameScene>("NewGameScene");
+    AddScene<LoadGameScene>("LoadGameScene");
+    // itd
 
     MainLoop();
 
@@ -45,13 +49,8 @@ void GameWindow::MainLoop()
 
     while (isRunning)
     {
-        BeginDrawing();
-        ClearBackground(RAYWHITE);
-
         UpdateWindowSize();
         Update(0);
-
-        EndDrawing();
     }
 }
 

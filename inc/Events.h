@@ -2,6 +2,7 @@
 #define EVENTS_H
 
 #include "Utils.h"
+#include "GameWorld.h"
 
 class EventBroker;
 class Event;
@@ -75,6 +76,21 @@ struct WindowSizeChangedEvent : Event
 struct ToggleFullscreenEvent : Event
 {
     ToggleFullscreenEvent() {msgName = "ToggleFullscreenEvent";}
+};
+
+struct NewGameEvent : Event
+{
+    NewGameEvent() {msgName = "NewGameEvent";}
+
+    MapParameters params;
+    std::string name;
+};
+
+struct LoadGameEvent : Event
+{
+    LoadGameEvent() {msgName = "LoadGameEvent";}
+
+    std::string name;
 };
 
 #endif
