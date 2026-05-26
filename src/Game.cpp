@@ -3,7 +3,7 @@
 void Game::InitGame()
 {
     gameWorld = std::make_unique<GameWorld>();
-    gameWorld->InitWorld();
+    // gameWorld->InitWorld("default");
 }
 
 void Game::GameLoop()

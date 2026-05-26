@@ -11,4 +11,5 @@ include_directories(../inc)
                        MapGenerator.cpp
                        GameWindow.cpp
                        Scenes.cpp
-                       Gui.cpp)
+                       Gui.cpp
+                       Renderer.cpp)

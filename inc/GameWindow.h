@@ -7,6 +7,8 @@ class Scene : public EventClient
 {
     public:
     virtual void Update(double dt) = 0;
+
+    Renderer render;
 };
 
 

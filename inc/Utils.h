@@ -16,6 +16,9 @@
 #include <functional>
 #include <random> //zrobic klase random ktroa bedzie losowac liczby w danym zakresie
 #include <type_traits>
+#include <fstream>
+#include <filesystem>
+
 
 class Random
 {

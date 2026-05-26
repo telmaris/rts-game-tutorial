@@ -35,3 +35,9 @@ void HBox::Update(double dt)
         child->Update(dt);
     }
 }
+
+void TextBox::Update(double dt)
+{
+    GuiTextBox((Rectangle){pos.x, pos.y, size.x, size.y}, textOutput, 18, true);
+    text = textOutput;
+}

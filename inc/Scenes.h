@@ -4,6 +4,7 @@
 #include "GameWindow.h"
 #include "Gui.h"
 
+
 class MainMenuScene : public Scene
 {
     public: 
@@ -50,8 +51,12 @@ class NewGameScene : public Scene
         void HandleEvent(std::shared_ptr<Event>) override;
 
         void OnBackPressed();
+        void OnStartPressed();
 
         UiButton backButton;
+        TextBox gameName;
+        // add dropdownbox with map size
+        UiButton startGame;
 };
 
 class LoadGameScene : public Scene
@@ -63,8 +68,30 @@ class LoadGameScene : public Scene
         void HandleEvent(std::shared_ptr<Event>) override;
 
         void OnBackPressed();
+        void LoadSaves();
+        void OnSavePressed(std::string);
 
         UiButton backButton;
+        VBox saveButtons;
+};
+
+class GameScene : public Scene
+{
+    public:
+
+        GameScene();
+        void Update(double dt) override;
+        void HandleEvent(std::shared_ptr<Event>) override;
+
+        void StartNewGame(std::string, MapParameters);
+        void LoadGame(std::string);
+        void SaveGame();
+
+        void OnBackPressed();
+
+        UiButton backButton;
+        std::unique_ptr<GameWorld> game{nullptr};
+
 };
 
 #endif

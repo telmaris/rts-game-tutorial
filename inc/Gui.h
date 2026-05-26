@@ -41,6 +41,9 @@ public:
 
     Vec2f posAnchor{0.2f, 0.2f};
     Vec2f sizeAnchor{0.2f, 0.1f};
+
+    // std::string name{"default widget name"};
+    // int id{0};
 };
 
 class UiButton : public UiWidget
@@ -140,6 +143,8 @@ public:
         size = Vec2i{windowSize.x * sizeAnchor.x, windowSize.y * sizeAnchor.y};
 
         int childrenCount = children.size();
+        if(childrenCount == 0) return;
+
         Vec2i childrenSize{size.x, size.y / childrenCount};
 
         for (int i = 0; i < childrenCount; i++)
@@ -213,6 +218,60 @@ public:
     std::vector<std::shared_ptr<UiWidget>> children;
 
     Vec4i margins{0, 5, 0, 0}; // up down left right
+};
+
+class TextBox : public UiWidget
+{
+    public:
+
+    void Update(double dt) override;
+
+    inline void ChangeText(std::string stryng)
+    {
+        text = stryng;
+    }
+
+    inline bool HasChanged()
+    {
+        if (text.compare(textOutput))
+        {
+            text = textOutput;
+            return true;
+        }
+        return false;
+    }
+
+    std::string GetText() { return text; }
+
+    char* textOutput;
+    std::string text{"Default textbox text"};
+};
+
+class DropdownBox : public UiWidget
+{
+    public:
+
+    void Update(double dt) override;
+
+    inline void ChangeText(std::string stryng)
+    {
+        text = stryng;
+    }
+
+    inline bool HasChanged()
+    {
+        if (text.compare(textOutput))
+        {
+            text = textOutput;
+            return true;
+        }
+        return false;
+    }
+
+    std::string GetText() { return text; }
+
+    char* textOutput;
+    std::string text{"Default dropdown text"};
 };
 
 #endif
