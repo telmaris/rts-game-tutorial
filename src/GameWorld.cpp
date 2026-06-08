@@ -108,12 +108,10 @@ void GameWorld::InitWorld(std::string name, Renderer* r)
 {
     worldName = name;
     render = r;
-    test = LoadTexture("../assets/textures/test_tex.png");
-    // test = LoadTexture("../assets/textures/atlas0.png");
 
     MapParameters params;
-    params.sizeX = 25;
-    params.sizeY = 25;
+    params.sizeX = 101;
+    params.sizeY = 101;
 
     tilemap.generator.GenerateTileMap(tilemap, params);
 
@@ -121,20 +119,14 @@ void GameWorld::InitWorld(std::string name, Renderer* r)
     auto p = playerHandler.players[0].get();
 
     tilemap.SetTerritory({12,12}, 25, p);
-    tilemap[{1,11}].tileType = ResourceType::IRON_ORE;
+    tilemap[{1,11}].tileType = TileType::IRON_ORE;
 
-    auto Mine1 = p->Build<Mine>({1,11});
-    auto Storage = p->Build<StorageBuilding>({10,11});
+    p->Build<Woodcutter>({5,5});
+    p->Build<Mine>({7,5});
+    p->Build<Foundry>({8,5});
+    p->Build<StorageBuilding>({9,5});
+    p->Build<LumberMill>({6,5});
 
-    for(int x = 2; x < 10; x++)
-    {
-        for(int y = 1; y < 20; y++)
-        {
-            p->Build<Road>({x,y});
-        }
-    }
-
-    Mine1->SetReceiver(ResourceType::IRON_ORE, Storage);
 }
 
 void GameWorld::Update(double dt)
@@ -143,18 +135,82 @@ void GameWorld::Update(double dt)
     
     // update tilemap with buildings
     tilemap.UpdateBuildings(dt);
-    // playerHandler.players[0]->roadNetwork->Update(dt);
-    // render->DrawOnLayer(1, test, {100,100});
-    // render->DrawOnLayer(2, test, {200,200});
-    // render->DrawOnLayer(1, render->atlasMap[0].tex, {0,0});
 
-    for(int x = 0; x < 20; x++)
+    // draw map
+    DrawMap();
+}
+
+void GameWorld::DrawMap()
+{
+    for(int x = 0; x < tilemap.params.sizeX; x++)
     {
-        for(int y = 0; y < 20; y++)
+        for(int y = 0; y < tilemap.params.sizeY; y++)
         {
-            render->DrawOnLayer(0, 0, 0, {x*32, y*32});
+            auto& tile = tilemap.tilemap[y*tilemap.params.sizeX + x];
+
+            Vec2f pos = {x*64, y*64};
+
+            // draw base terrain
+            switch(tile.tileType)
+            {
+                case TileType::GRASS:
+                {
+                    render->DrawOnLayer(0, 0, 0, pos);
+                    break;
+                }
+                case TileType::COAL:
+                {
+                    render->DrawOnLayer(0, 0, 1, pos);
+                    break;
+                }
+                case TileType::IRON_ORE:
+                {
+                    render->DrawOnLayer(0, 0, 2, pos);
+                    break;
+                }
+                default:
+                    break;
+            }
+
+            // draw buildings
+
+            if(tile.building)
+            {
+                switch(tile.building->buildingType)
+                {
+                    case BuildingType::Woodcutter:
+                    {
+                        render->DrawOnLayer(1, 1, 0, pos);
+                        break;
+                    }
+                    case BuildingType::LumberMill:
+                    {
+                        render->DrawOnLayer(1, 1, 1, pos);
+                        break;
+                    }
+                    case BuildingType::Mine:
+                    {
+                        render->DrawOnLayer(1, 1, 2, pos);
+                        break;
+                    }
+                    case BuildingType::Foundry:
+                    {
+                        render->DrawOnLayer(1, 1, 3, pos);
+                        break;
+                    }
+                    case BuildingType::StorageBuilding:
+                    {
+                        render->DrawOnLayer(1, 1, 4, pos);
+                        break;
+                    }
+                    case BuildingType::Road:
+                    {
+                        render->DrawOnLayer(1, 1, 5, pos);
+                        break;
+                    }
+                    default: break;
+                }
+            }
         }
     }
-    // call to render
-    // render->DrawOnLayer();
 }

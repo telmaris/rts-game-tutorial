@@ -49,7 +49,7 @@ void Building::ReceptTransport(Transportable* trans)
 ProductionBuilding::ProductionBuilding(int ajdi)
 {
     id = ajdi;
-    type = ResourceType::Null;
+    type = TileType::GRASS;
     name = "ProductionBuilding";
     tag = "[ProductionBuilding]";
     buildingType = BuildingType::ProductionBuilding;
@@ -173,7 +173,11 @@ void ProductionBuilding::HandleTransport(ResourceType resource, int amount, Buil
 
 void ProductionBuilding::RequestResource(ResourceType ResType, int amount)
 {
-    suppliersMap[ResType]->HandleTransport(ResType,amount,this);
+    // Log::Msg(tag, "Requesting resoure: ", rt2s(ResType), " amount: ", amount);
+    if(suppliersMap.contains(ResType))
+    {
+        suppliersMap[ResType]->HandleTransport(ResType,amount,this);
+    }
 }
 
 void ProductionBuilding::AddResource(Resource* res)
@@ -218,7 +222,8 @@ Woodcutter::Woodcutter(int i)
     id = i;
     name = "Woodcutter";
     tag = "[Woodcutter]";
-    type = ResourceType::WOOD;
+    // type = Tile::WOOD;
+    buildingType = BuildingType::Woodcutter;
     products.insert({ResourceType::WOOD, 1});
     productionTime = 5;
     ResourceBuffer output{ResourceType::WOOD, 3};
@@ -229,8 +234,9 @@ LumberMill::LumberMill(int i)
     id = i;
     name = "Lumber Mill";
     tag = "[Lumber Mill]";
+    buildingType = BuildingType::LumberMill;
 
-    type = ResourceType::PLANKS;
+    // type = ResourceType::PLANKS;
     products.insert({ResourceType::PLANKS, 2});
     productionTime = 10;
 
@@ -245,22 +251,23 @@ LumberMill::LumberMill(int i)
 
 Mine::Mine(int i)
 {
-    type = ResourceType::Null;
+    // type = ResourceType::Null;
     id = i;
     name = "Mine";
     tag = "[Mine]";
+    buildingType = BuildingType::Mine;
 }
 
-void Mine::InitBuilding(ResourceType tile)
+void Mine::InitBuilding(TileType tile)
 {
     type = tile;
-    if (type == ResourceType::IRON_ORE)
+    if (type == TileType::IRON_ORE)
     {
         products.insert({ResourceType::IRON_ORE, 2});
         productionTime = 2;
         outputBuffers.insert({ResourceType::IRON_ORE, ResourceBuffer{ResourceType::IRON_ORE, 10}});
     }
-    if (type == ResourceType::COAL)
+    if (type == TileType::COAL)
     {
         products.insert({ResourceType::COAL, 2});
         productionTime = 2;
@@ -271,9 +278,10 @@ void Mine::InitBuilding(ResourceType tile)
 Foundry::Foundry(int ajdi)
 {
     id = ajdi;
-    type = ResourceType::Null;
+    // type = ResourceType::Null;
     name = "Foundry";
     tag = "[Foundry]";
+    buildingType = BuildingType::Foundry;
 }
 void Foundry::SetSupplier(ResourceType type, Building* supplier)
 {
@@ -329,6 +337,8 @@ void Foundry::SetSupplier(ResourceType type, Building* supplier)
     {
 
     }
+
+    
 StorageBuilding::StorageBuilding(int actualId)
 {
     id = actualId;
@@ -376,7 +386,7 @@ void StorageBuilding::SetSupplier(ResourceType type, Building* receiver)
 {
     
 }
-void StorageBuilding::InitBuilding(ResourceType tajl)
+void StorageBuilding::InitBuilding(TileType tajl)
 {
     
 }

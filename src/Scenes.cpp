@@ -1,4 +1,36 @@
 #include "../inc/Scenes.h"
+#include "../inc/GuiController.h"
+
+// ======= INPUT ============
+
+bool InputProcessor::IsActionPressed(int action)
+{
+    bool result = false;
+
+    if (action < MAX_ACTION) result = (IsKeyPressed(actionInputs[action].key) || IsMouseButtonPressed(actionInputs[action].button));
+
+    return result;
+}
+
+bool InputProcessor::IsActionReleased(int action)
+{
+    bool result = false;
+
+    if (action < MAX_ACTION) result = (IsKeyReleased(actionInputs[action].key) || IsMouseButtonReleased(actionInputs[action].button));
+
+    return result;
+}
+
+bool InputProcessor::IsActionDown(int action)
+{
+    bool result = false;
+
+    if (action < MAX_ACTION) result = (IsKeyDown(actionInputs[action].key)  || IsMouseButtonDown(actionInputs[action].button));
+
+    return result;
+}
+
+// ===============================================
 
 MainMenuScene::MainMenuScene()
 {
@@ -294,20 +326,28 @@ GameScene::GameScene()
     backButton.func = std::bind(&GameScene::OnBackPressed, this);
 
     render.atlasMap[0] = TextureAtlas{};
-    render.atlasMap[0].LoadTextureAtlas("../assets/textures/atlas0.png");
+    render.atlasMap[0].LoadTextureAtlas("../assets/textures/atlas_terrain.png");
+
+    render.atlasMap[1] = TextureAtlas{};
+    render.atlasMap[1].LoadTextureAtlas("../assets/textures/atlas_building.png");
+    // render.atlasMap[1].LoadTextureAtlas("../assets/textures/atlas1.png");
+
+    controller = std::make_unique<GuiController>();
+    controller->Init(this);
+    inputs.Init(controller.get());
 }
 
 void GameScene::Update(double dt)
 {
     render.ClearLayers();
+
+    inputs.HandleInputs();
+    controller->Update(dt);
     game->Update(dt);
 
     std::vector<UiWidget*> ui{&backButton};
 
     render.Draw(ui);
-
-    // backButton.Update(dt);
-
 }
 
 void GameScene::HandleEvent(std::shared_ptr<Event> e)

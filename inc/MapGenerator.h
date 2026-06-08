@@ -17,6 +17,8 @@ class MapGenerator
         void GenerateTileMap(TileMap&,MapParameters&);
 };
 
+
+
 class Tile
 {
     public:
@@ -31,7 +33,7 @@ class Tile
         int id;
         Player* owner = nullptr;  //ten tam ten pointer oznacza wlasciciela tego terytorium
         std::unique_ptr<Building> building{nullptr};
-        ResourceType tileType{static_cast<ResourceType>(0)};
+        TileType tileType{static_cast<TileType>(0)};
 };
 
 class TileMap

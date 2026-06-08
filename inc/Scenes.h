@@ -3,7 +3,8 @@
 
 #include "GameWindow.h"
 #include "Gui.h"
-
+#include "Input.h"
+#include "GuiController.h"
 
 class MainMenuScene : public Scene
 {
@@ -83,6 +84,7 @@ class GameScene : public Scene
         void Update(double dt) override;
         void HandleEvent(std::shared_ptr<Event>) override;
 
+
         void StartNewGame(std::string, MapParameters);
         void LoadGame(std::string);
         void SaveGame();
@@ -90,8 +92,11 @@ class GameScene : public Scene
         void OnBackPressed();
 
         UiButton backButton;
+        // tutaj build GUI, building stats GUI, tech tree GUI, itd
+        // dodać std::stack<GuiPanel&>
         std::unique_ptr<GameWorld> game{nullptr};
-
+        std::unique_ptr<GuiController> controller{nullptr};
+        InputProcessor inputs;
 };
 
 #endif

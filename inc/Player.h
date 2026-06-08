@@ -14,6 +14,12 @@ public:
     Player() = default;
     Player(int i, TileMap& tmap) : tilemap(tmap), id(i), build(this, tilemap){ roadNetwork = std::make_unique<RoadNetwork>(tilemap);}
 
+    void Update(double dt)
+    {
+        input->Update(dt);
+        input->GetInputs();
+    }
+
     template <typename T>
     Building* Build(int tilePos)
     {

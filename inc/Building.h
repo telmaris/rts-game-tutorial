@@ -14,7 +14,20 @@ enum class BuildingType : int
     ProductionBuilding = 1,
     StorageBuilding = 2,
     MilitaryBuilding = 3,
-    Road = 4
+    Road = 4,
+
+    Woodcutter = 11,
+    LumberMill = 12,
+    Mine = 13,
+    Foundry = 14
+};
+
+enum class TileType : int
+{
+    GRASS = 0,  // empty square
+    WOOD = 1,
+    COAL = 2,
+    IRON_ORE = 3
 };
 
 class Building
@@ -25,7 +38,7 @@ class Building
         virtual ~Building() = default;
 
         virtual void Update(double) = 0;
-        virtual void InitBuilding(ResourceType) = 0;
+        virtual void InitBuilding(TileType) = 0;
 
         virtual void AddResource(Resource*) = 0;
         virtual Resource GetResource(ResourceType) = 0;
@@ -55,7 +68,7 @@ class Road : public Building
         Road(int i);
 
         void Update(double);
-        void InitBuilding(ResourceType) {}
+        void InitBuilding(TileType t ) override {}
 
         void AddResource(Resource*) {}
         Resource GetResource(ResourceType) {}
@@ -82,7 +95,7 @@ class ProductionBuilding : public Building
         virtual ~ProductionBuilding() = default;
 
         void Update(double) override;
-        virtual void InitBuilding(ResourceType t) override { type = t;}
+        virtual void InitBuilding(TileType t) override { type = t;}
         
         void AddResource(Resource*) override;
         Resource GetResource(ResourceType) override;
@@ -98,7 +111,7 @@ class ProductionBuilding : public Building
 
         void ReceptTransport(Transportable*);
 
-        ResourceType type;
+        TileType type;
         std::map<ResourceType, int> ingredients;    // to budynek pochłania do produkcji (1 para <resourcetype, int> per składnik)
         std::map<ResourceType, int> products;       // to budynek produkuje (analogicznie do ingredients - 1 para per surowiec)
 
@@ -124,7 +137,7 @@ public:
         void Update(double) override;        
         void AddResource(Resource*) override;
         Resource GetResource(ResourceType) override;
-        void InitBuilding(ResourceType tajl) override;
+        void InitBuilding(TileType tajl) override;
 
         virtual void SetSupplier(ResourceType, Building*);
         virtual void SetReceiver(ResourceType, Building*);

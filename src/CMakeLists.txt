@@ -12,4 +12,5 @@ include_directories(../inc)
                        GameWindow.cpp
                        Scenes.cpp
                        Gui.cpp
-                       Renderer.cpp)
+                       Renderer.cpp
+                       GuiController.cpp)
