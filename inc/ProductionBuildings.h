@@ -17,7 +17,7 @@ class Mine : public ProductionBuilding
 {
     public:
         Mine(int);
-        void InitBuilding(ResourceType) override;
+        void InitBuilding(TileType) override;
 };
 class Foundry : public ProductionBuilding
 {

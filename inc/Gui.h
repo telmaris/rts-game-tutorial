@@ -243,7 +243,7 @@ class TextBox : public UiWidget
 
     std::string GetText() { return text; }
 
-    char* textOutput;
+    char textOutput[16] = "\0";
     std::string text{"Default textbox text"};
 };
 

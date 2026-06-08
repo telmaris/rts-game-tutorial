@@ -23,7 +23,7 @@ class GameWorld
 
         void InitWorld(std::string, Renderer*);
         void Update(double);
-
+        void DrawMap();
     
         TileMap tilemap;
         PlayerHandler playerHandler;
