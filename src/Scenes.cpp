@@ -7,7 +7,8 @@ bool InputProcessor::IsActionPressed(int action)
 {
     bool result = false;
 
-    if (action < MAX_ACTION) result = (IsKeyPressed(actionInputs[action].key) || IsMouseButtonPressed(actionInputs[action].button));
+    if (action < MAX_ACTION)
+        result = (IsKeyPressed(actionInputs[action].key) || IsMouseButtonPressed(actionInputs[action].button));
 
     return result;
 }
@@ -16,7 +17,8 @@ bool InputProcessor::IsActionReleased(int action)
 {
     bool result = false;
 
-    if (action < MAX_ACTION) result = (IsKeyReleased(actionInputs[action].key) || IsMouseButtonReleased(actionInputs[action].button));
+    if (action < MAX_ACTION)
+        result = (IsKeyReleased(actionInputs[action].key) || IsMouseButtonReleased(actionInputs[action].button));
 
     return result;
 }
@@ -25,7 +27,8 @@ bool InputProcessor::IsActionDown(int action)
 {
     bool result = false;
 
-    if (action < MAX_ACTION) result = (IsKeyDown(actionInputs[action].key)  || IsMouseButtonDown(actionInputs[action].button));
+    if (action < MAX_ACTION)
+        result = (IsKeyDown(actionInputs[action].key) || IsMouseButtonDown(actionInputs[action].button));
 
     return result;
 }
@@ -279,7 +282,7 @@ void LoadGameScene::LoadSaves()
     namespace fs = std::filesystem;
     fs::path root = "./saves";
 
-    for (const auto& entry : fs::recursive_directory_iterator(root))
+    for (const auto &entry : fs::recursive_directory_iterator(root))
     {
         if (!entry.is_regular_file())
             continue;
@@ -298,8 +301,7 @@ void LoadGameScene::LoadSaves()
 
             std::string data(
                 (std::istreambuf_iterator<char>(file)),
-                std::istreambuf_iterator<char>()
-            );
+                std::istreambuf_iterator<char>());
 
             auto button = std::make_shared<UiButton>();
             button->ChangeText(data);
@@ -327,10 +329,6 @@ void LoadGameScene::HandleEvent(std::shared_ptr<Event> e)
 
 GameScene::GameScene()
 {
-    backButton.ChangeText("Back");
-    backButton.ChangePositionAnchor(Vec2f{0.5f, 0.7f});
-    backButton.func = std::bind(&GameScene::OnBackPressed, this);
-
     render.atlasMap[0] = TextureAtlas{};
     render.atlasMap[0].LoadTextureAtlas("../assets/textures/atlas_terrain.png");
 
@@ -351,9 +349,7 @@ void GameScene::Update(double dt)
     controller->Update(dt);
     game->Update(dt);
 
-    std::vector<UiWidget*> ui{&backButton};
-
-    render.Draw(ui);
+    render.Draw();
 }
 
 void GameScene::HandleEvent(std::shared_ptr<Event> e)
@@ -361,7 +357,6 @@ void GameScene::HandleEvent(std::shared_ptr<Event> e)
     auto ptr = std::dynamic_pointer_cast<WindowSizeChangedEvent>(e);
     if (ptr != nullptr)
     {
-        backButton.UpdateSize(ptr->windowSize);
     }
 
     auto ptr2 = std::dynamic_pointer_cast<NewGameEvent>(e);
@@ -382,22 +377,13 @@ void GameScene::HandleEvent(std::shared_ptr<Event> e)
     if (ptr3 != nullptr)
     {
         LoadGame(ptr3->name);
-        
+
         auto msg = std::make_shared<ChangeSceneEvent>();
         msg->sender = this;
         msg->sceneName = "GameScene";
         msg->previousSceneName = name;
         broker->Broadcast(msg);
     }
-}
-
-void GameScene::OnBackPressed()
-{
-    auto msg = std::make_shared<ChangeSceneEvent>();
-    msg->sender = this;
-    msg->sceneName = previousSceneName;
-    msg->previousSceneName = name;
-    broker->Broadcast(msg);
 }
 
 void GameScene::StartNewGame(std::string name, MapParameters params)
@@ -422,9 +408,9 @@ void GameScene::SaveGame()
     // todo: prepare a serializable struct with game state data
 
     std::string filename{"saves/" + game->worldName + ".save"};
-    std::fstream saveFile{filename, saveFile.trunc | saveFile.out}; 
+    std::fstream saveFile{filename, saveFile.trunc | saveFile.out};
 
-     if (!saveFile.is_open())
+    if (!saveFile.is_open())
         std::cout << "failed to open " << filename << '\n';
     else
     {
@@ -439,14 +425,15 @@ GameMenuScene::GameMenuScene()
 {
     vbox.ChangeSizeAnchor(Vec2f{0.3f, 0.3f});
     vbox.ChangePositionAnchor(Vec2f{0.1f, 0.1f});
-        auto returnButton = std::make_shared<UiButton>();
-    returnButton->ChangeText("New Game");
-    returnButton->func = std::bind(&GameMenuScene::OnBackPressed, this);
-    vbox.AddChild(returnButton);
+
+    auto saveButton = std::make_shared<UiButton>();
+    saveButton->ChangeText("Save Game");
+    saveButton->func = std::bind(&GameMenuScene::OnSaveGamePressed, this);
+    vbox.AddChild(saveButton);
 
     auto loadGameButton = std::make_shared<UiButton>();
     loadGameButton->ChangeText("Load Game");
-    loadGameButton->func = std::bind(&GameMenuScene::OnSavePressed, this);
+    loadGameButton->func = std::bind(&GameMenuScene::OnLoadGamePressed, this);
     vbox.AddChild(loadGameButton);
 
     auto optionsButton = std::make_shared<UiButton>();
@@ -454,16 +441,21 @@ GameMenuScene::GameMenuScene()
     optionsButton->func = std::bind(&GameMenuScene::OnOptionsPressed, this);
     vbox.AddChild(optionsButton);
 
-    auto quitButton = std::make_shared<UiButton>();
-    quitButton->ChangeText("Quit");
-    quitButton->func = std::bind(&GameMenuScene::OnQuitPressed, this);
-    vbox.AddChild(quitButton);
+    auto mainMenuButton = std::make_shared<UiButton>();
+    mainMenuButton->ChangeText("Main Menu");
+    mainMenuButton->func = std::bind(&GameMenuScene::OnMainMenuPressed, this);
+    vbox.AddChild(mainMenuButton);
+
+    auto returnButton = std::make_shared<UiButton>();
+    returnButton->ChangeText("Return");
+    returnButton->func = std::bind(&GameMenuScene::OnBackPressed, this);
+    vbox.AddChild(returnButton);
 }
 void GameMenuScene::OnBackPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
-    msg->sceneName = previousSceneName;
+    msg->sceneName = "GameScene";
     msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
@@ -475,7 +467,7 @@ void GameMenuScene::OnOptionsPressed()
     msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
-void GameMenuScene::OnQuitPressed()
+void GameMenuScene::OnMainMenuPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
@@ -483,14 +475,22 @@ void GameMenuScene::OnQuitPressed()
     msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
-void GameMenuScene::OnSavePressed()
+void GameMenuScene::OnSaveGamePressed()
 {
-    Log::Msg("Saveing");
+    Log::Msg("[Game Menu]", "Saveing");
+}
+
+void GameMenuScene::OnLoadGamePressed()
+{
+    auto msg = std::make_shared<ChangeSceneEvent>();
+    msg->sender = this;
+    msg->sceneName = "LoadGameScene";
+    msg->previousSceneName = name;
+    broker->Broadcast(msg);
 }
 
 void GameMenuScene::Update(double dt)
 {
-
     vbox.Update(dt);
     render.Draw();
 }
@@ -503,4 +503,3 @@ void GameMenuScene::HandleEvent(std::shared_ptr<Event> e)
         vbox.UpdateSize(ptr->windowSize);
     }
 }
-
