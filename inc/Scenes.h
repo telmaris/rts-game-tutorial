@@ -89,11 +89,6 @@ class GameScene : public Scene
         void LoadGame(std::string);
         void SaveGame();
 
-        void OnBackPressed();
-
-        UiButton backButton;
-        // tutaj build GUI, building stats GUI, tech tree GUI, itd
-        // dodać std::stack<GuiPanel&>
         std::unique_ptr<GameWorld> game{nullptr};
         std::unique_ptr<GuiController> controller{nullptr};
         InputProcessor inputs;
@@ -109,13 +104,11 @@ class GameMenuScene : public Scene
 
         void OnBackPressed();
         void OnOptionsPressed();
-        void OnQuitPressed();
-        void OnSavePressed();
-
+        void OnMainMenuPressed();
+        void OnSaveGamePressed();
+        void OnLoadGamePressed();
 
         VBox vbox;
-        // tutaj build GUI, building stats GUI, tech tree GUI, itd
-        // dodać std::stack<GuiPanel&>
 };
 
 #endif
