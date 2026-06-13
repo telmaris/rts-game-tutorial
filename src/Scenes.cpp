@@ -73,6 +73,7 @@ void MainMenuScene::OnNewGamePressed()
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
     msg->sceneName = "NewGameScene";
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -81,6 +82,7 @@ void MainMenuScene::OnLoadGamePressed()
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
     msg->sceneName = "LoadGameScene";
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -89,6 +91,7 @@ void MainMenuScene::OnOptionsPressed()
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
     msg->sceneName = "OptionsScene";
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -156,7 +159,8 @@ void OptionsScene::OnBackPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
-    msg->sceneName = "MainScene";
+    msg->sceneName = previousSceneName;
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -201,7 +205,8 @@ void NewGameScene::OnBackPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
-    msg->sceneName = "MainScene";
+    msg->sceneName = previousSceneName;
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -256,7 +261,8 @@ void LoadGameScene::OnBackPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
-    msg->sceneName = "MainScene";
+    msg->sceneName = previousSceneName;
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -366,6 +372,7 @@ void GameScene::HandleEvent(std::shared_ptr<Event> e)
         auto msg = std::make_shared<ChangeSceneEvent>();
         msg->sender = this;
         msg->sceneName = "GameScene";
+        msg->previousSceneName = name;
         broker->Broadcast(msg);
 
         SaveGame();
@@ -379,6 +386,7 @@ void GameScene::HandleEvent(std::shared_ptr<Event> e)
         auto msg = std::make_shared<ChangeSceneEvent>();
         msg->sender = this;
         msg->sceneName = "GameScene";
+        msg->previousSceneName = name;
         broker->Broadcast(msg);
     }
 }
@@ -387,7 +395,8 @@ void GameScene::OnBackPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
     msg->sender = this;
-    msg->sceneName = "MainScene";
+    msg->sceneName = previousSceneName;
+    msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
 
@@ -423,3 +432,75 @@ void GameScene::SaveGame()
         saveFile.close();
     }
 }
+
+// ================ ESCAPE MENU =================
+
+GameMenuScene::GameMenuScene()
+{
+    vbox.ChangeSizeAnchor(Vec2f{0.3f, 0.3f});
+    vbox.ChangePositionAnchor(Vec2f{0.1f, 0.1f});
+        auto returnButton = std::make_shared<UiButton>();
+    returnButton->ChangeText("New Game");
+    returnButton->func = std::bind(&GameMenuScene::OnBackPressed, this);
+    vbox.AddChild(returnButton);
+
+    auto loadGameButton = std::make_shared<UiButton>();
+    loadGameButton->ChangeText("Load Game");
+    loadGameButton->func = std::bind(&GameMenuScene::OnSavePressed, this);
+    vbox.AddChild(loadGameButton);
+
+    auto optionsButton = std::make_shared<UiButton>();
+    optionsButton->ChangeText("Options");
+    optionsButton->func = std::bind(&GameMenuScene::OnOptionsPressed, this);
+    vbox.AddChild(optionsButton);
+
+    auto quitButton = std::make_shared<UiButton>();
+    quitButton->ChangeText("Quit");
+    quitButton->func = std::bind(&GameMenuScene::OnQuitPressed, this);
+    vbox.AddChild(quitButton);
+}
+void GameMenuScene::OnBackPressed()
+{
+    auto msg = std::make_shared<ChangeSceneEvent>();
+    msg->sender = this;
+    msg->sceneName = previousSceneName;
+    msg->previousSceneName = name;
+    broker->Broadcast(msg);
+}
+void GameMenuScene::OnOptionsPressed()
+{
+    auto msg = std::make_shared<ChangeSceneEvent>();
+    msg->sender = this;
+    msg->sceneName = "OptionsScene";
+    msg->previousSceneName = name;
+    broker->Broadcast(msg);
+}
+void GameMenuScene::OnQuitPressed()
+{
+    auto msg = std::make_shared<ChangeSceneEvent>();
+    msg->sender = this;
+    msg->sceneName = "MainScene";
+    msg->previousSceneName = name;
+    broker->Broadcast(msg);
+}
+void GameMenuScene::OnSavePressed()
+{
+    Log::Msg("Saveing");
+}
+
+void GameMenuScene::Update(double dt)
+{
+
+    vbox.Update(dt);
+    render.Draw();
+}
+
+void GameMenuScene::HandleEvent(std::shared_ptr<Event> e)
+{
+    auto ptr = std::dynamic_pointer_cast<WindowSizeChangedEvent>(e);
+    if (ptr != nullptr)
+    {
+        vbox.UpdateSize(ptr->windowSize);
+    }
+}
+

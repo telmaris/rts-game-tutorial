@@ -8,6 +8,8 @@ class Scene : public EventClient
     public:
     virtual void Update(double dt) = 0;
 
+    std::string name;
+    std::string previousSceneName;
     Renderer render;
 };
 
@@ -24,6 +26,7 @@ class GameWindow : public EventBroker
 
         auto scene = std::make_shared<T>();
         scene->broker = this;
+        scene->name = name;
         scenes.insert({name, scene});
         
         AddClient(name, scene.get());
@@ -46,7 +49,11 @@ class GameWindow : public EventBroker
     // 4) zarządzanie renderem assetów Game (tekstury i dźwięk)
     // 5) przechwytywanie i przekazywanie Inputu z myszy/klawiatury
 
-    inline void ChangeScene(std::string name) {activeScene = scenes[name];}
+    inline void ChangeScene(std::string name, std::string previousSceneName) 
+    {
+        activeScene = scenes[name];
+        activeScene->previousSceneName = previousSceneName;
+    }
 
     std::map<std::string, std::shared_ptr<Scene>> scenes;
     std::shared_ptr<Scene> activeScene;
