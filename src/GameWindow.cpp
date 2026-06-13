@@ -7,11 +7,12 @@ void GameWindow::LaunchGame()
     InitWindow(800, 450, "raylib example - basic window");
 
     AddScene<MainMenuScene>("MainScene");
-    ChangeScene("MainScene");
+    ChangeScene("MainScene", "");
     AddScene<OptionsScene>("OptionsScene");
     AddScene<GameScene>("GameScene");
     AddScene<NewGameScene>("NewGameScene");
     AddScene<LoadGameScene>("LoadGameScene");
+    AddScene<GameMenuScene>("GameMenuScene");
     // itd
 
     MainLoop();
@@ -33,7 +34,7 @@ void GameWindow::HandleEvent(std::shared_ptr<Event> e)
     auto ptr2 = std::dynamic_pointer_cast<ChangeSceneEvent>(e);
     if (ptr2 != nullptr)
     {
-        ChangeScene(ptr2->sceneName);
+        ChangeScene(ptr2->sceneName, ptr2->previousSceneName);
     }
 
     auto ptr3 = std::dynamic_pointer_cast<ToggleFullscreenEvent>(e);
@@ -47,6 +48,7 @@ void GameWindow::MainLoop()
 {
     // todo: pomiar czasu itd
 
+    SetTargetFPS(150);
     while (isRunning)
     {
         UpdateWindowSize();

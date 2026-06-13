@@ -64,6 +64,7 @@ struct ChangeSceneEvent : Event
 {
     ChangeSceneEvent() {msgName = "ChangeSceneEvent";}
     std::string sceneName;
+    std::string previousSceneName;
 };
 
 struct WindowSizeChangedEvent : Event

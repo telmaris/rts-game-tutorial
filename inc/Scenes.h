@@ -99,4 +99,23 @@ class GameScene : public Scene
         InputProcessor inputs;
 };
 
+class GameMenuScene : public Scene
+{
+    public:
+
+        GameMenuScene();
+        void Update(double dt) override;
+        void HandleEvent(std::shared_ptr<Event>) override;
+
+        void OnBackPressed();
+        void OnOptionsPressed();
+        void OnQuitPressed();
+        void OnSavePressed();
+
+
+        VBox vbox;
+        // tutaj build GUI, building stats GUI, tech tree GUI, itd
+        // dodać std::stack<GuiPanel&>
+};
+
 #endif
