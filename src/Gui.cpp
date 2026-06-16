@@ -41,3 +41,8 @@ void TextBox::Update(double dt)
     GuiTextBox((Rectangle){pos.x, pos.y, size.x, size.y}, textOutput, 18, true);
     text = textOutput;
 }
+
+void GuiPanel::Update(double dt)
+{
+    GuiWindowBox((Rectangle){pos.x, pos.y, size.x, size.y}, text.c_str());
+}

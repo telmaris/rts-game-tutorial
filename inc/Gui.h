@@ -247,6 +247,7 @@ class TextBox : public UiWidget
     std::string text{"Default textbox text"};
 };
 
+//TODO:
 class DropdownBox : public UiWidget
 {
     public:
@@ -274,4 +275,12 @@ class DropdownBox : public UiWidget
     std::string text{"Default dropdown text"};
 };
 
+
+class GuiPanel : public UiWidget
+{
+    public:
+        void Update(double dt) override;
+
+        std::string text{"Gui Panel"};
+};
 #endif

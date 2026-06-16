@@ -338,6 +338,9 @@ GameScene::GameScene()
 
     controller = std::make_unique<GuiController>();
     controller->Init(this);
+    controller->AddSystem<BasicMapViewSystem>("default");
+    controller->ChangeSystem("default");
+    
     inputs.Init(controller.get());
 }
 
@@ -349,7 +352,7 @@ void GameScene::Update(double dt)
     controller->Update(dt);
     game->Update(dt);
 
-    render.Draw();
+    render.Draw(controller->GetUiWidgets());
 }
 
 void GameScene::HandleEvent(std::shared_ptr<Event> e)
@@ -357,6 +360,10 @@ void GameScene::HandleEvent(std::shared_ptr<Event> e)
     auto ptr = std::dynamic_pointer_cast<WindowSizeChangedEvent>(e);
     if (ptr != nullptr)
     {
+        for(auto& [name, system] : controller->systems)
+        {
+            system->UpdateUiWidgets(ptr->windowSize);
+        }
     }
 
     auto ptr2 = std::dynamic_pointer_cast<NewGameEvent>(e);
@@ -451,6 +458,7 @@ GameMenuScene::GameMenuScene()
     returnButton->func = std::bind(&GameMenuScene::OnBackPressed, this);
     vbox.AddChild(returnButton);
 }
+
 void GameMenuScene::OnBackPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
@@ -459,6 +467,7 @@ void GameMenuScene::OnBackPressed()
     msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
+
 void GameMenuScene::OnOptionsPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
@@ -467,6 +476,7 @@ void GameMenuScene::OnOptionsPressed()
     msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
+
 void GameMenuScene::OnMainMenuPressed()
 {
     auto msg = std::make_shared<ChangeSceneEvent>();
@@ -475,6 +485,7 @@ void GameMenuScene::OnMainMenuPressed()
     msg->previousSceneName = name;
     broker->Broadcast(msg);
 }
+
 void GameMenuScene::OnSaveGamePressed()
 {
     Log::Msg("[Game Menu]", "Saveing");
